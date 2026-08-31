@@ -130,13 +130,13 @@ export default function Navbar() {
           {/* Mobile Auth Actions */}
           <div className="pt-4 border-t border-neutral-100 flex flex-col gap-2.5">
             <Link
-              href="/login"
+              href="/auth/login"
               className="w-full text-center py-2.5 text-sm font-medium text-neutral-800 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition"
             >
               Sign In
             </Link>
             <Link
-              href="/signup"
+              href="/auth/sign-up"
               className="w-full text-center py-2.5 text-sm font-medium bg-neutral-900 text-white rounded-xl hover:bg-neutral-800 transition shadow-sm"
             >
               Sign Up
