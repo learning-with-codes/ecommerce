@@ -24,7 +24,7 @@ export default function Hero() {
                 href="#featured"
                 className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-black text-white font-medium hover:bg-neutral-800 transition shadow-sm"
               >
-                Shop Collection
+                Shop Collection jkhjkhjkjh
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Link>
               <Link
