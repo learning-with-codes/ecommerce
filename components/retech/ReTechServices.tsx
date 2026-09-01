@@ -7,27 +7,25 @@ import {
   Wrench,
   RotateCcw,
   Tablet,
-  Car,
   Store,
   Headphones,
 } from "lucide-react";
 
-const services = [
+const retechServices = [
   { label: "Sell Phone", icon: Smartphone, href: "#sell-section" },
   { label: "Buy Gadgets", icon: Headphones, href: "#refurbished-section" },
   { label: "Buy Phone", icon: Smartphone, href: "#refurbished-section" },
-  { label: "Buy Laptops", icon: Laptop, href: "#refurbished-section" },
-  { label: "Rent PS5", icon: Gamepad2, href: "#" },
+  { label: "Buy MacBooks", icon: Laptop, href: "#refurbished-section" },
+  { label: "Rent Consoles", icon: Gamepad2, href: "#" },
   { label: "Buy Cameras", icon: Camera, href: "#" },
-  { label: "Repair Phone", icon: Wrench, href: "#" },
+  { label: "Express Repair", icon: Wrench, href: "#" },
   { label: "Nearby Stores", icon: Store, href: "#stores-section" },
-  { label: "Buy Smartwatches", icon: Watch, href: "#" },
-  { label: "Recycle", icon: RotateCcw, href: "#" },
+  { label: "Smartwatches", icon: Watch, href: "#" },
+  { label: "Eco Recycle", icon: RotateCcw, href: "#" },
   { label: "Buy Tablets", icon: Tablet, href: "#" },
-  { label: "Sell Your Car", icon: Car, href: "#" },
 ];
 
-export default function OurServices() {
+export default function ReTechServices() {
   return (
     <section className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -35,8 +33,8 @@ export default function OurServices() {
           Our Services
         </h2>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 sm:gap-6">
-          {services.map((item, index) => {
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4 sm:gap-6">
+          {retechServices.map((item, index) => {
             const Icon = item.icon;
             return (
               <a

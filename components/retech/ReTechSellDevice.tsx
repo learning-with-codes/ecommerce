@@ -11,16 +11,16 @@ import {
 
 const sellCategories = [
   { label: "Sell Phone", icon: Smartphone },
-  { label: "Sell Laptop", icon: Laptop },
-  { label: "Sell TV", icon: Tv },
-  { label: "Sell Tablet", icon: Tablet },
-  { label: "Sell Gaming Consoles", icon: Gamepad2 },
-  { label: "Sell Smartwatch", icon: Watch },
-  { label: "Sell Smart Speakers", icon: Speaker },
-  { label: "Sell More", icon: MoreHorizontal },
+  { label: "Sell MacBook", icon: Laptop },
+  { label: "Sell Smart TV", icon: Tv },
+  { label: "Sell iPad", icon: Tablet },
+  { label: "Sell Consoles", icon: Gamepad2 },
+  { label: "Sell Apple Watch", icon: Watch },
+  { label: "Sell Audio", icon: Speaker },
+  { label: "Sell Others", icon: MoreHorizontal },
 ];
 
-export default function SellDeviceSection() {
+export default function ReTechSellDevice() {
   return (
     <section id="sell-section" className="py-12 bg-neutral-50 border-y border-neutral-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

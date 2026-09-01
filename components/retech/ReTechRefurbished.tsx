@@ -8,53 +8,53 @@ interface Product {
   originalPrice: string;
   rating: number;
   image: string;
-  cashifyAssured: boolean;
+  isCertified: boolean;
 }
 
 const refurbishedProducts: Product[] = [
   {
     id: "1",
     name: "Samsung Galaxy S24 Ultra 5G - Refurbished",
-    discount: "₹70,900 OFF",
-    price: "₹69,999",
-    originalPrice: "₹1,40,899",
+    discount: "£350 OFF",
+    price: "£699.00",
+    originalPrice: "£1,049.00",
     rating: 4.8,
     image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?q=80&w=500&auto=format&fit=crop",
-    cashifyAssured: true,
+    isCertified: true,
   },
   {
     id: "2",
-    name: "Apple MacBook Air 2024 (M3 Chip 13.3 Inch)",
-    discount: "₹29,000 OFF",
-    price: "₹80,999",
-    originalPrice: "₹1,09,999",
+    name: "Apple MacBook Air (M3 Chip 13.3 Inch)",
+    discount: "£280 OFF",
+    price: "£819.00",
+    originalPrice: "£1,099.00",
     rating: 4.8,
     image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=500&auto=format&fit=crop",
-    cashifyAssured: true,
+    isCertified: true,
   },
   {
     id: "3",
-    name: "Samsung Galaxy S21 Ultra 5G - Refurbished",
-    discount: "₹6,800 OFF",
-    price: "₹32,999",
-    originalPrice: "₹39,799",
-    rating: 4.5,
+    name: "Apple iPhone 15 Pro Max - Pristine",
+    discount: "£220 OFF",
+    price: "£779.00",
+    originalPrice: "£999.00",
+    rating: 4.9,
     image: "https://images.unsplash.com/photo-1580910051074-3eb694886505?q=80&w=500&auto=format&fit=crop",
-    cashifyAssured: true,
+    isCertified: true,
   },
   {
     id: "4",
-    name: "Apple MacBook Pro 2025 (Apple M5 14 Inch)",
-    discount: "₹1,27,000 OFF",
-    price: "₹1,97,999",
-    originalPrice: "₹3,24,999",
+    name: "Apple MacBook Pro 14 Inch (M-Series)",
+    discount: "£450 OFF",
+    price: "£1,449.00",
+    originalPrice: "£1,899.00",
     rating: 4.9,
     image: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=500&auto=format&fit=crop",
-    cashifyAssured: true,
+    isCertified: true,
   },
 ];
 
-export default function RefurbishedSection() {
+export default function ReTechRefurbished() {
   return (
     <section id="refurbished-section" className="py-14 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,7 +64,7 @@ export default function RefurbishedSection() {
               Buy Refurbished Devices
             </h2>
             <p className="text-xs text-neutral-500 mt-1">
-              32-point quality checks & 6 months warranty
+              70-point quality check & 12 months comprehensive warranty
             </p>
           </div>
           <a href="#" className="text-xs font-bold text-teal-600 hover:text-teal-700">
@@ -80,9 +80,9 @@ export default function RefurbishedSection() {
             >
               <div>
                 <div className="relative aspect-square w-full rounded-xl bg-neutral-50 overflow-hidden flex items-center justify-center p-4">
-                  {p.cashifyAssured && (
+                  {p.isCertified && (
                     <span className="absolute top-2.5 left-2.5 bg-neutral-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-sm">
-                      CASHIFY ASSURED
+                      RETECH CERTIFIED
                     </span>
                   )}
                   <img
@@ -104,7 +104,7 @@ export default function RefurbishedSection() {
                   <span className="text-[11px] font-bold bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded flex items-center gap-0.5">
                     {p.rating} <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
                   </span>
-                  <span className="text-[11px] text-neutral-400">Lowest Price</span>
+                  <span className="text-[11px] text-neutral-400">Best Price Guarantee</span>
                 </div>
               </div>
 
