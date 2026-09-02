@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
-// import { Providers } from "@/components/providers";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -9,8 +8,15 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "ReTech - Buy & Sell Refurbished Devices",
+  description: "Sell old tech for instant cash or buy certified refurbished devices. Free doorstep pickup & 12-month warranty.",
+  keywords: "buy refurbished phones, sell old devices, certified electronics, tech trade-in",
+  openGraph: {
+    title: "ReTech - Certified Refurbished Devices",
+    description: "Buy refurbished tech or sell your old devices instantly",
+    url: defaultUrl,
+    siteName: "ReTech",
+  },
 };
 
 const geistSans = Geist({
