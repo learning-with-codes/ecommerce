@@ -21,7 +21,16 @@ import {
 } from '@/types/retech';
 
 export const CITIES: string[] = [
-  'Kolkata', 'Delhi NCR', 'Bengaluru', 'Mumbai', 'Hyderabad', 'Chennai', 'Pune', 'Ahmedabad', 'Jaipur', 'Chandigarh'
+  'Kolkata',
+  'Delhi NCR',
+  'Bengaluru',
+  'Mumbai',
+  'Hyderabad',
+  'Chennai',
+  'Pune',
+  'Ahmedabad',
+  'Jaipur',
+  'Chandigarh'
 ];
 
 export const CATEGORIES: CategoryItem[] = [
@@ -166,7 +175,7 @@ export const TESTIMONIALS: TestimonialItem[] = [
     name: 'Debojyoti Roy',
     city: 'Kolkata',
     rating: 5,
-    text: 'Sold my iPhone 13 via ReTech. Executive came to Salt Lake within 2 hours, did a digital diagnostics check and UPI balance credit hoye geche immediately!',
+    text: 'Sold my iPhone 13 via ReTech. Executive came to Salt Lake within 2 hours, did digital diagnostics check and instant UPI payout was credited.',
     device: 'Sold iPhone 13 128GB'
   },
   {

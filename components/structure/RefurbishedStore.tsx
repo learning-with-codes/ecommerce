@@ -9,7 +9,7 @@ interface RefurbishedStoreProps {
   onAddToCart: (phone: RefurbishedPhoneItem) => void;
 }
 
-export const RefurbishedStore: React.FC<RefurbishedStoreProps> = ({ onAddToCart }) => {
+export default function RefurbishedStore({ onAddToCart }: RefurbishedStoreProps) {
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
 
   const filtered = selectedBrand === 'all'
@@ -25,7 +25,7 @@ export const RefurbishedStore: React.FC<RefurbishedStoreProps> = ({ onAddToCart 
           <p className="text-xs text-slate-500 mt-1">Every phone includes 32-point diagnostics and a 6-month pan-India warranty.</p>
         </div>
 
-        {/* Filters */}
+        {/* Brand Filters */}
         <div className="flex gap-2 mt-4 md:mt-0">
           {['all', 'apple', 'samsung', 'oneplus'].map((b) => (
             <button
@@ -68,7 +68,7 @@ export const RefurbishedStore: React.FC<RefurbishedStoreProps> = ({ onAddToCart 
             <p className="text-xs text-slate-500 mt-0.5">{phone.storage} • {phone.color}</p>
 
             <div className="my-4 space-y-1 text-xs text-slate-600">
-              {phone.features.map((f: string, idx: number ) => (
+              {phone.features.map((f, idx) => (
                 <div key={idx} className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" />
                   <span>{f}</span>
@@ -95,4 +95,4 @@ export const RefurbishedStore: React.FC<RefurbishedStoreProps> = ({ onAddToCart 
       </div>
     </div>
   );
-};
+}

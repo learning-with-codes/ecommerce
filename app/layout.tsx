@@ -1,38 +1,26 @@
-import type { Metadata } from "next";
-import { Geist } from "next/font/google";
-import "./globals.css";
-
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
+import type { Metadata, Viewport } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(defaultUrl),
-  title: "ReTech - Buy & Sell Refurbished Devices",
-  description: "Sell old tech for instant cash or buy certified refurbished devices. Free doorstep pickup & 12-month warranty.",
-  keywords: "buy refurbished phones, sell old devices, certified electronics, tech trade-in",
-  openGraph: {
-    title: "ReTech - Certified Refurbished Devices",
-    description: "Buy refurbished tech or sell your old devices instantly",
-    url: defaultUrl,
-    siteName: "ReTech",
-  },
+  title: 'ReTech - Smart ReCommerce | Sell, Buy & Repair Devices',
+  description: 'Instant cash for used smartphones, certified refurbished store with warranty, and doorstep repairs.',
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  display: "swap",
-  subsets: ["latin"],
-});
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}>
+    <html lang="en" className="overflow-x-hidden">
+      <body className="antialiased overflow-x-hidden w-full bg-slate-50 text-slate-900 selection:bg-indigo-600 selection:text-white">
         {children}
       </body>
     </html>

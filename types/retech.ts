@@ -1,5 +1,7 @@
 import { LucideIcon } from 'lucide-react';
 
+export type ActiveTab = 'home' | 'sell' | 'buy' | 'repair';
+
 export interface CategoryItem {
   id: string;
   label: string;
@@ -79,5 +81,3 @@ export interface DeviceConditionState {
   bodyCondition: 'None' | 'Minor' | 'Heavy';
   hasOriginalBoxCharger: boolean;
 }
-
-export type ActiveTab = 'home' | 'sell' | 'buy' | 'repair';

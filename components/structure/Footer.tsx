@@ -8,7 +8,7 @@ interface FooterProps {
   onNavigate: (tab: ActiveTab) => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+export default function Footer({ onNavigate }: FooterProps) {
   return (
     <footer className="bg-slate-950 text-slate-400 text-xs border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -21,7 +21,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <span className="font-extrabold text-xl text-white">ReTech</span>
             </div>
             <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
-              ReTech is India next-generation circular technology marketplace. Sell pre-owned gadgets for immediate funds, buy certified hardware with warranty, or request doorstep repairs.
+              ReTech is India's next-generation circular technology marketplace. Sell pre-owned gadgets for immediate funds, buy certified hardware with warranty, or request doorstep repairs.
             </p>
             <div className="pt-2 flex items-center gap-2 text-indigo-400 font-semibold">
               <ShieldCheck className="w-4 h-4" />
@@ -54,4 +54,4 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
       </div>
     </footer>
   );
-};
+}

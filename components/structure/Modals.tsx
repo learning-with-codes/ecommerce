@@ -12,7 +12,7 @@ interface CityModalProps {
   onSelectCity: (city: string) => void;
 }
 
-export const CityModal: React.FC<CityModalProps> = ({ isOpen, onClose, selectedCity, onSelectCity }) => {
+export function CityModal({ isOpen, onClose, selectedCity, onSelectCity }: CityModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -44,7 +44,7 @@ export const CityModal: React.FC<CityModalProps> = ({ isOpen, onClose, selectedC
       </div>
     </div>
   );
-};
+}
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -54,7 +54,7 @@ interface CartDrawerProps {
   onCheckout: () => void;
 }
 
-export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, cart, onRemove, onCheckout }) => {
+export function CartDrawer({ isOpen, onClose, cart, onRemove, onCheckout }: CartDrawerProps) {
   if (!isOpen) return null;
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
@@ -104,4 +104,4 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, cart, o
       </div>
     </div>
   );
-};
+}

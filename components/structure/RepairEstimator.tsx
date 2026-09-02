@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Wrench } from 'lucide-react';
 import { REPAIR_SERVICES } from '@/data/retechData';
 
-export const RepairEstimator: React.FC = () => {
+export default function RepairEstimator() {
   const [selectedService, setSelectedService] = useState<string>('screen');
   const [booked, setBooked] = useState<boolean>(false);
 
@@ -90,4 +90,4 @@ export const RepairEstimator: React.FC = () => {
       </div>
     </div>
   );
-};
+}
