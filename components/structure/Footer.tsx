@@ -21,7 +21,7 @@ export default function Footer({ onNavigate }: FooterProps) {
               <span className="font-extrabold text-xl text-white">ReTech</span>
             </div>
             <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
-              ReTech is India's next-generation circular technology marketplace. Sell pre-owned gadgets for immediate funds, buy certified hardware with warranty, or request doorstep repairs.
+              ReTech is India next-generation circular technology marketplace. Sell pre-owned gadgets for immediate funds, buy certified hardware with warranty, or request doorstep repairs.
             </p>
             <div className="pt-2 flex items-center gap-2 text-indigo-400 font-semibold">
               <ShieldCheck className="w-4 h-4" />
