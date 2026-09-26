@@ -1,189 +1,193 @@
-import {
-  Smartphone,
-  Laptop,
-  Tablet,
-  Watch,
-  Tv,
-  Wrench,
-  RefreshCw,
-  Headphones,
-  BatteryCharging,
-  Zap
-} from 'lucide-react';
-import {
-  CategoryItem,
-  HeroSlideItem,
-  BrandItem,
-  SellDeviceItem,
-  RefurbishedPhoneItem,
-  RepairServiceItem,
-  TestimonialItem
-} from '@/types/retech';
+import { HeroSlide, CategoryItem, Product, ReviewItem } from "@/types/retech";
 
-export const CITIES: string[] = [
-  'Kolkata',
-  'Delhi NCR',
-  'Bengaluru',
-  'Mumbai',
-  'Hyderabad',
-  'Chennai',
-  'Pune',
-  'Ahmedabad',
-  'Jaipur',
-  'Chandigarh'
+export const HERO_SLIDES: HeroSlide[] = [
+  {
+    id: "slide-1",
+    badge: "Big ReTech Electronics Festival",
+    title: "Upgrade to Flagship Power.",
+    highlight: "Pay 40% Less.",
+    description: "Certified Refurbished iPhone 15 Pro, Galaxy S24 Ultra & M3 MacBooks with 45-point diagnostic reports, 1-year replacement warranty & doorstep trial.",
+    ctaText: "Shop Refurbished Fest",
+    ctaSecondaryText: "Instant Sell Valuation",
+    image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=1000&auto=format&fit=crop&q=80",
+    deviceTag: "Apple iPhone 15 Pro Max 256GB (Superb Grade)",
+    price: "₹94,999",
+    originalPrice: "₹1,34,900",
+    discountTag: "Save 30% Today",
+    bgColor: "from-orange-950 via-slate-900 to-slate-950",
+    accentBadge: "100% Tested OEM Battery"
+  },
+  {
+    id: "slide-2",
+    badge: "Mega Exchange & Sell Bonus",
+    title: "Old Laptop or Phone?",
+    highlight: "Instant ₹ Cashout.",
+    description: "Doorstep evaluation in 10 minutes flat. Best valuation in India with zero deduction for battery cycles and instant UPI payout before technician leaves.",
+    ctaText: "Check Sell Price",
+    ctaSecondaryText: "How Selling Works",
+    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1000&auto=format&fit=crop&q=80",
+    deviceTag: "MacBook Air M2 16GB / 512GB",
+    price: "₹82,499",
+    originalPrice: "₹1,19,900",
+    discountTag: "₹37,400 Off Retail",
+    bgColor: "from-amber-950 via-slate-900 to-slate-950",
+    accentBadge: "Doorstep Pickup in 25+ Cities"
+  },
+  {
+    id: "slide-3",
+    badge: "Audiophile & Gaming Carnival",
+    title: "Sony ANC & PS5 Slim.",
+    highlight: "Unbeatable Deals.",
+    description: "Immersive noise cancellation and next-gen gaming gear. Factory sanitized, repackaged with original accessories, and covered by 6-month swap warranty.",
+    ctaText: "Explore Audio & Gaming",
+    ctaSecondaryText: "Browse All Deals",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1000&auto=format&fit=crop&q=80",
+    deviceTag: "Sony WH-1000XM5 Wireless Noise Cancelling",
+    price: "₹21,999",
+    originalPrice: "₹34,990",
+    discountTag: "Flat 37% Discount",
+    bgColor: "from-stone-950 via-orange-950/70 to-slate-950",
+    accentBadge: "Studio Audio Certified"
+  }
 ];
 
 export const CATEGORIES: CategoryItem[] = [
-  { id: 'sell-phone', label: 'Sell Mobile', icon: Smartphone, badge: 'Max Value' },
-  { id: 'buy-refurbished', label: 'Refurbished Store', icon: RefreshCw, badge: 'Up to 70% Off' },
-  { id: 'sell-laptop', label: 'Sell Laptop', icon: Laptop },
-  { id: 'repair', label: 'Repair Gadget', icon: Wrench, badge: 'Doorstep' },
-  { id: 'sell-tablet', label: 'Sell Tablet', icon: Tablet },
-  { id: 'smartwatch', label: 'Sell Smartwatch', icon: Watch },
-  { id: 'audio', label: 'Audio Devices', icon: Headphones },
-  { id: 'tv', label: 'Sell Smart TV', icon: Tv }
+  { id: "smartphones", name: "Smartphones", count: "140+ Items", tag: "Flagships & Budgets", image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80" },
+  { id: "laptops", name: "Laptops & MacBooks", count: "85+ Items", tag: "M3, OLED & Ultrabooks", image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80" },
+  { id: "tablets", name: "iPads & Tablets", count: "45+ Items", tag: "Stylus & Retina Screens", image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600&auto=format&fit=crop&q=80" },
+  { id: "audio", name: "Headphones & Earbuds", count: "90+ Items", tag: "Active Noise Cancelling", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80" },
+  { id: "wearables", name: "Smartwatches", count: "60+ Items", tag: "Fitness & Cellular", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80" },
+  { id: "gaming", name: "Gaming Consoles", count: "30+ Items", tag: "PS5, Xbox & Handhelds", image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop&q=80" }
 ];
 
-export const HERO_SLIDES: HeroSlideItem[] = [
+export const PRODUCTS: Product[] = [
   {
-    id: 1,
-    title: 'Turn Your Old Tech Into Instant Bank Balance',
-    subtitle: 'Free door-to-door device inspection and instant UPI payout within minutes.',
-    badge: '⚡ Instant ReTech Valuation',
-    ctaText: 'Calculate Device Value',
-    ctaAction: 'sell',
-    bgColor: 'bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900',
-    buttonColor: 'bg-indigo-600 hover:bg-indigo-500 text-white',
-    icon: '📱'
-  },
-  {
-    id: 2,
-    title: 'Certified ReTech Flagships & iPhones',
-    subtitle: 'Rigorous 32-point hardware check, 6 months standard warranty, and zero-risk return.',
-    badge: '🏷️ Extra Cashback on UPI & Cards',
-    ctaText: 'Browse Store',
-    ctaAction: 'buy',
-    bgColor: 'bg-gradient-to-r from-slate-900 via-purple-950 to-slate-950',
-    buttonColor: 'bg-purple-600 hover:bg-purple-500 text-white',
-    icon: '✨'
-  },
-  {
-    id: 3,
-    title: 'Precision Doorstep Hardware Repair',
-    subtitle: 'OEM grade screen & battery replacement at your place in under 30 minutes.',
-    badge: '🔧 Verified ReTech Engineers',
-    ctaText: 'Check Repair Price',
-    ctaAction: 'repair',
-    bgColor: 'bg-gradient-to-r from-slate-950 via-violet-950 to-slate-900',
-    buttonColor: 'bg-violet-600 hover:bg-violet-500 text-white',
-    icon: '🛠️'
-  }
-];
-
-export const BRANDS: BrandItem[] = [
-  { id: 'apple', name: 'Apple', logo: '', popular: true },
-  { id: 'samsung', name: 'Samsung', logo: 'S', popular: true },
-  { id: 'oneplus', name: 'OnePlus', logo: '1+', popular: true },
-  { id: 'xiaomi', name: 'Xiaomi', logo: 'mi', popular: true },
-  { id: 'google', name: 'Google Pixel', logo: 'G', popular: true },
-  { id: 'vivo', name: 'Vivo', logo: 'V', popular: false },
-  { id: 'realme', name: 'Realme', logo: 'R', popular: false }
-];
-
-export const SELL_DEVICES: SellDeviceItem[] = [
-  { id: 'ip15pro', brand: 'apple', name: 'iPhone 15 Pro Max', basePrice: 78500, variants: ['256GB', '512GB', '1TB'], img: '📱' },
-  { id: 'ip14', brand: 'apple', name: 'iPhone 14', basePrice: 38200, variants: ['128GB', '256GB', '512GB'], img: '📱' },
-  { id: 'ip13', brand: 'apple', name: 'iPhone 13', basePrice: 29500, variants: ['128GB', '256GB'], img: '📱' },
-  { id: 's23u', brand: 'samsung', name: 'Galaxy S23 Ultra 5G', basePrice: 52000, variants: ['256GB', '512GB'], img: '📱' },
-  { id: 'op11', brand: 'oneplus', name: 'OnePlus 11 5G', basePrice: 28900, variants: ['128GB', '256GB'], img: '📱' },
-  { id: 'px7', brand: 'google', name: 'Google Pixel 7 5G', basePrice: 22600, variants: ['128GB', '256GB'], img: '📱' }
-];
-
-export const REFURBISHED_PHONES: RefurbishedPhoneItem[] = [
-  {
-    id: 'ref-ip14-128',
-    name: 'Apple iPhone 14 (Certified Pre-Owned)',
-    storage: '128GB',
-    color: 'Midnight Black',
-    brand: 'apple',
-    grade: 'Pristine',
-    conditionTag: 'Like New (Zero Scratches)',
-    price: 44999,
-    originalPrice: 69900,
-    rating: 4.8,
-    reviewsCount: 428,
-    features: ['32-Point Diagnostics Passed', 'Battery Health 88%+', '6 Months Warranty'],
-    emoji: '📱'
-  },
-  {
-    id: 'ref-s23-256',
-    name: 'Samsung Galaxy S23 5G (Certified Pre-Owned)',
-    storage: '256GB',
-    color: 'Phantom Black',
-    brand: 'samsung',
-    grade: 'Pristine',
-    conditionTag: 'Flawless Condition',
-    price: 39999,
-    originalPrice: 79999,
-    rating: 4.7,
-    reviewsCount: 312,
-    features: ['Dynamic AMOLED 120Hz', 'Snapdragon 8 Gen 2', '6 Months Warranty'],
-    emoji: '📱'
-  },
-  {
-    id: 'ref-ip13-128',
-    name: 'Apple iPhone 13 (Certified Pre-Owned)',
-    storage: '128GB',
-    color: 'Starlight White',
-    brand: 'apple',
-    grade: 'Standard',
-    conditionTag: 'Minor Micro-Abrasions',
-    price: 34999,
-    originalPrice: 59900,
+    id: "p1",
+    name: "Apple iPhone 15 Pro Max (256GB)",
+    brand: "Apple",
+    category: "smartphones",
+    image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=600&auto=format&fit=crop&q=80",
+    price: 94999,
+    originalPrice: 134900,
+    discount: 30,
     rating: 4.9,
-    reviewsCount: 1240,
-    features: ['A15 Bionic Processing', 'Dual 12MP Cameras', '6 Months Warranty'],
-    emoji: '📱'
+    reviewsCount: 428,
+    condition: "Refurbished - Like New",
+    warranty: "1 Year ReTech Warranty",
+    badge: "Top Seller",
+    testedPoints: 45
   },
   {
-    id: 'ref-op11-256',
-    name: 'OnePlus 11 5G (Certified Pre-Owned)',
-    storage: '256GB',
-    color: 'Eternal Green',
-    brand: 'oneplus',
-    grade: 'Pristine',
-    conditionTag: 'Factory Reset & Tested',
-    price: 33499,
-    originalPrice: 61999,
+    id: "p2",
+    name: "MacBook Air 15\" M3 (16GB / 512GB)",
+    brand: "Apple",
+    category: "laptops",
+    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80",
+    price: 82499,
+    originalPrice: 119900,
+    discount: 31,
+    rating: 4.9,
+    reviewsCount: 182,
+    condition: "Open Box",
+    warranty: "Official Brand Warranty",
+    badge: "Almost New",
+    testedPoints: 45
+  },
+  {
+    id: "p3",
+    name: "Samsung Galaxy S24 Ultra (512GB Titanium)",
+    brand: "Samsung",
+    category: "smartphones",
+    image: "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=600&auto=format&fit=crop&q=80",
+    price: 89999,
+    originalPrice: 139999,
+    discount: 35,
+    rating: 4.8,
+    reviewsCount: 310,
+    condition: "Refurbished - Like New",
+    warranty: "1 Year ReTech Warranty",
+    badge: "Hot Deal",
+    testedPoints: 45
+  },
+  {
+    id: "p4",
+    name: "Sony WH-1000XM5 Wireless ANC",
+    brand: "Sony",
+    category: "audio",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
+    price: 21999,
+    originalPrice: 34990,
+    discount: 37,
+    rating: 4.9,
+    reviewsCount: 640,
+    condition: "Refurbished - Good",
+    warranty: "6 Month Warranty",
+    badge: "Best Sound",
+    testedPoints: 32
+  },
+  {
+    id: "p5",
+    name: "Apple iPad Pro 11\" M2 (Wi-Fi 128GB)",
+    brand: "Apple",
+    category: "tablets",
+    image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600&auto=format&fit=crop&q=80",
+    price: 54999,
+    originalPrice: 81900,
+    discount: 32,
+    rating: 4.7,
+    reviewsCount: 195,
+    condition: "Refurbished - Like New",
+    warranty: "1 Year ReTech Warranty",
+    badge: "Creator Choice",
+    testedPoints: 45
+  },
+  {
+    id: "p6",
+    name: "Dell XPS 13 Plus (Core i7, 16GB, 1TB)",
+    brand: "Dell",
+    category: "laptops",
+    image: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=600&auto=format&fit=crop&q=80",
+    price: 79999,
+    originalPrice: 145000,
+    discount: 44,
     rating: 4.6,
-    reviewsCount: 198,
-    features: ['Hasselblad Calibration', '100W Charging Support', '6 Months Warranty'],
-    emoji: '📱'
+    reviewsCount: 88,
+    condition: "Refurbished - Good",
+    warranty: "6 Month Warranty",
+    badge: "Super Value",
+    testedPoints: 45
   }
 ];
 
-export const REPAIR_SERVICES: RepairServiceItem[] = [
-  { id: 'screen', name: 'Screen Replacement', icon: Smartphone, price: '₹1,999 onwards', turnaround: '30 mins doorstep', warranty: '6 Months' },
-  { id: 'battery', name: 'Battery Replacement', icon: BatteryCharging, price: '₹999 onwards', turnaround: '20 mins doorstep', warranty: '6 Months' },
-  { id: 'camera', name: 'Camera Module Fix', icon: Wrench, price: '₹1,299 onwards', turnaround: 'Same Day', warranty: '3 Months' },
-  { id: 'charging', name: 'Charging Port / Mic', icon: Zap, price: '₹699 onwards', turnaround: '25 mins doorstep', warranty: '3 Months' }
-];
-
-export const TESTIMONIALS: TestimonialItem[] = [
+export const REVIEWS: ReviewItem[] = [
   {
-    id: 1,
-    name: 'Debojyoti Roy',
-    city: 'Kolkata',
+    id: "r1",
+    name: "Subham Banerjee",
+    role: "Verified Techie",
+    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80",
     rating: 5,
-    text: 'Sold my iPhone 13 via ReTech. Executive came to Salt Lake within 2 hours, did digital diagnostics check and instant UPI payout was credited.',
-    device: 'Sold iPhone 13 128GB'
+    comment: "Bought an iPhone 15 Pro Max in 'Like New' condition. Battery health was 99% and not a single scratch on body. Amazing service!",
+    verified: true,
+    product: "Apple iPhone 15 Pro Max"
   },
   {
-    id: 2,
-    name: 'Ananya Sen',
-    city: 'Bengaluru',
+    id: "r2",
+    name: "Ritika Sharma",
+    role: "Software Developer",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&auto=format&fit=crop&q=80",
     rating: 5,
-    text: 'Ordered an S23 from ReTech refurbished store. Pristine condition with original charger and warranty certificate. Massive cost savings!',
-    device: 'Bought Galaxy S23'
+    comment: "Sold my old M1 MacBook through instant pickup and got ₹48,000 credited within 10 minutes of inspection at my doorstep.",
+    verified: true,
+    product: "Device Sell Flow"
+  },
+  {
+    id: "r3",
+    name: "Arunav Sen",
+    role: "Digital Artist",
+    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=120&auto=format&fit=crop&q=80",
+    rating: 5,
+    comment: "Best platform for verified refurbished gear. The 45-point test report included inside the box gives immense confidence.",
+    verified: true,
+    product: "iPad Pro M2"
   }
 ];

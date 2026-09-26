@@ -1,55 +1,74 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { ShieldCheck } from 'lucide-react';
-import { ActiveTab } from '@/types/retech';
+import React from "react";
+import { Zap, ShieldCheck } from "lucide-react";
 
-interface FooterProps {
-  onNavigate: (tab: ActiveTab) => void;
-}
-
-export default function Footer({ onNavigate }: FooterProps) {
+export default function Footer() {
   return (
-    <footer className="bg-slate-950 text-slate-400 text-xs border-t border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div className="col-span-2 space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center font-black text-white text-base">
-                R
+    <footer className="bg-slate-950 text-slate-400 pt-16 pb-12 border-t border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center gap-2 group cursor-pointer">
+              <div className="h-10 w-10 rounded-xl bg-orange-600 flex items-center justify-center text-white">
+                <Zap className="h-5 w-5 fill-white" />
               </div>
-              <span className="font-extrabold text-xl text-white">ReTech</span>
+              <span className="text-2xl font-black text-white">
+                Re<span className="text-orange-500">Tech</span>
+              </span>
             </div>
-            <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
-              ReTech is India next-generation circular technology marketplace. Sell pre-owned gadgets for immediate funds, buy certified hardware with warranty, or request doorstep repairs.
+            <p className="text-sm text-slate-400 max-w-sm">
+              Smarter Tech. Better Value. India&apos;s most reliable ecosystem to purchase certified refurbished electronics and sell old gadgets with instant UPI payment.
             </p>
-            <div className="pt-2 flex items-center gap-2 text-indigo-400 font-semibold">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Certified 100% Data Destruction Standard</span>
+            <div className="pt-2 flex items-center gap-4 text-xs font-semibold text-slate-300">
+              <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-emerald-400" /> ISO Certified Lab</span>
+              <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-orange-400" /> 100% Data Wiping</span>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <h4 className="font-bold text-white text-xs uppercase tracking-wider">Services</h4>
-            <ul className="space-y-1.5 text-slate-400">
-              <li className="hover:text-indigo-400 cursor-pointer" onClick={() => onNavigate('sell')}>Sell Phone</li>
-              <li className="hover:text-indigo-400 cursor-pointer" onClick={() => onNavigate('buy')}>Refurbished iPhones</li>
-              <li className="hover:text-indigo-400 cursor-pointer" onClick={() => onNavigate('repair')}>Screen Replacement</li>
+          <div className="space-y-3">
+            <p className="text-sm font-bold text-white uppercase tracking-wider">Shop Devices</p>
+            <ul className="space-y-2 text-xs">
+              <li><a href="#trending" className="hover:text-white transition">Certified Refurbished iPhones</a></li>
+              <li><a href="#trending" className="hover:text-white transition">MacBooks & OLED Laptops</a></li>
+              <li><a href="#trending" className="hover:text-white transition">Noise-Cancelling Headphones</a></li>
+              <li><a href="#refurbished" className="hover:text-white transition">Open Box Deals</a></li>
             </ul>
           </div>
 
-          <div className="space-y-2">
-            <h4 className="font-bold text-white text-xs uppercase tracking-wider">Support</h4>
-            <ul className="space-y-1.5 text-slate-400">
-              <li className="hover:text-indigo-400 cursor-pointer">Warranty Verification</li>
-              <li className="hover:text-indigo-400 cursor-pointer">Data Privacy Protocol</li>
-              <li className="hover:text-indigo-400 cursor-pointer">Help & FAQs</li>
+          <div className="space-y-3">
+            <p className="text-sm font-bold text-white uppercase tracking-wider">Sell & Exchange</p>
+            <ul className="space-y-2 text-xs">
+              <li><a href="#sell" className="hover:text-white transition">Sell Old Smartphone</a></li>
+              <li><a href="#sell" className="hover:text-white transition">Sell Apple MacBook</a></li>
+              <li><a href="#sell" className="hover:text-white transition">Sell Used Tablet</a></li>
+              <li><a href="#sell" className="hover:text-white transition">Doorstep Valuation Flow</a></li>
             </ul>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-sm font-bold text-white uppercase tracking-wider">Deals Newsletter</p>
+            <p className="text-xs text-slate-400">Receive drop alerts for refurbished MacBooks and iPhones.</p>
+            <div className="space-y-2">
+              <input
+                type="email"
+                placeholder="Enter email address"
+                className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+              />
+              <button className="w-full bg-orange-600 hover:bg-orange-700 text-white text-xs rounded-xl py-2 font-bold transition">
+                Subscribe
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-slate-800 text-center text-[11px] text-slate-500">
-          © 2026 ReTech ReCommerce Technologies Pvt. Ltd. All rights reserved.
+        <div className="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+          <p>© {new Date().getFullYear()} ReTech Inc. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <span className="hover:text-slate-400 cursor-pointer">Privacy Policy</span>
+            <span className="hover:text-slate-400 cursor-pointer">Terms of Exchange</span>
+            <span className="hover:text-slate-400 cursor-pointer">Warranty Registration</span>
+          </div>
         </div>
       </div>
     </footer>
