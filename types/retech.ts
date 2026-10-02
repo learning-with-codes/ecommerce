@@ -63,3 +63,64 @@ export interface AuthUser {
   avatar?: string;
   phone?: string;
 }
+
+export interface ShippingAddress {
+  fullName: string;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  pincode: string;
+  landmark?: string;
+}
+
+export interface OrderItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  condition?: string;
+  warranty?: string;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  userId?: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  shippingAddress: ShippingAddress;
+  items: OrderItem[];
+  subtotal: number;
+  discountAmount: number;
+  shippingFee: number;
+  totalAmount: number;
+  paymentMethod: "upi" | "card" | "cod" | "netbanking";
+  paymentStatus: "paid" | "pending" | "failed";
+  orderStatus: "confirmed" | "processing" | "shipped" | "out_for_delivery" | "delivered" | "cancelled";
+  trackingNumber: string;
+  createdAt: string;
+}
+
+export interface SellRequest {
+  id: string;
+  requestNumber: string;
+  userId?: string;
+  deviceCategory: string;
+  brand: string;
+  model: string;
+  variant?: string;
+  bodyCondition: string;
+  screenCondition: string;
+  estimatedCash: number;
+  customerName: string;
+  customerPhone: string;
+  pickupAddress: string;
+  pickupDate: string;
+  pickupTimeSlot: string;
+  status: "scheduled" | "diagnostic_assigned" | "inspection_passed" | "payout_completed" | "cancelled";
+  createdAt: string;
+}
+

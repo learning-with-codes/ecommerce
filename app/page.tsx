@@ -12,6 +12,8 @@ import SellCalculator from "@/components/structure/SellCalculator";
 import ReviewsSection from "@/components/structure/ReviewsSection";
 import Footer from "@/components/structure/Footer";
 import Modals from "@/components/structure/Modals";
+import CheckoutModal from "@/components/structure/CheckoutModal";
+import AccountModal from "@/components/structure/AccountModal";
 
 import { Product, CartItem, AuthUser } from "@/types/retech";
 import { getCurrentUser, logoutUser } from "@/lib/auth/authService";
@@ -26,6 +28,9 @@ export default function HomePage() {
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [valuationOpen, setValuationOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [accountTab, setAccountTab] = useState<"orders" | "sell_requests" | "profile">("orders");
 
   useEffect(() => {
     // Check active login state on mount
@@ -37,6 +42,16 @@ export default function HomePage() {
   const handleSignOut = async () => {
     await logoutUser();
     setCurrentUser(null);
+  };
+
+  const handleOpenAccount = (tab: "orders" | "sell_requests" | "profile" = "orders") => {
+    setAccountTab(tab);
+    setAccountOpen(true);
+  };
+
+  const handleOrderPlaced = () => {
+    // Keep cart cleared
+    setCart([]);
   };
 
   const handleAddToCart = (product: Product) => {
@@ -94,6 +109,7 @@ export default function HomePage() {
         onOpenWishlist={() => setWishlistOpen(true)}
         onOpenAuth={() => setAuthOpen(true)}
         onOpenValuation={() => setValuationOpen(true)}
+        onOpenAccount={handleOpenAccount}
         onSignOut={handleSignOut}
       />
 
@@ -139,6 +155,7 @@ export default function HomePage() {
         cart={cart}
         onUpdateCartQty={handleUpdateCartQty}
         onRemoveFromCart={handleRemoveFromCart}
+        onOpenCheckout={() => setCheckoutOpen(true)}
         wishlistOpen={wishlistOpen}
         onCloseWishlist={() => setWishlistOpen(false)}
         wishlist={wishlist}
@@ -147,8 +164,32 @@ export default function HomePage() {
         authOpen={authOpen}
         onCloseAuth={() => setAuthOpen(false)}
         onAuthSuccess={(user) => setCurrentUser(user)}
+        currentUser={currentUser}
         valuationOpen={valuationOpen}
         onCloseValuation={() => setValuationOpen(false)}
+      />
+
+      {/* 12. Checkout Modal with Doorstep Delivery & Payment */}
+      <CheckoutModal
+        isOpen={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        cart={cart}
+        currentUser={currentUser}
+        onOrderPlaced={handleOrderPlaced}
+        onClearCart={() => setCart([])}
+      />
+
+      {/* 13. My Account, Orders History & Sell Bookings Modal */}
+      <AccountModal
+        isOpen={accountOpen}
+        onClose={() => setAccountOpen(false)}
+        currentUser={currentUser}
+        onOpenShopping={() => {
+          setAccountOpen(false);
+          const el = document.getElementById("trending");
+          el?.scrollIntoView({ behavior: "smooth" });
+        }}
+        initialTab={accountTab}
       />
     </div>
   );

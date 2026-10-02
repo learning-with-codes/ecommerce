@@ -25,6 +25,7 @@ import {
   loginWithGoogle,
   getCurrentUser,
 } from "@/lib/auth/authService";
+import { createSellRequest } from "@/lib/services/valuationsService";
 
 interface ModalsProps {
   cartOpen: boolean;
@@ -32,6 +33,7 @@ interface ModalsProps {
   cart: CartItem[];
   onUpdateCartQty: (productId: string, delta: number) => void;
   onRemoveFromCart: (productId: string) => void;
+  onOpenCheckout: () => void;
 
   wishlistOpen: boolean;
   onCloseWishlist: () => void;
@@ -42,6 +44,7 @@ interface ModalsProps {
   authOpen: boolean;
   onCloseAuth: () => void;
   onAuthSuccess?: (user: AuthUser) => void;
+  currentUser?: AuthUser | null;
 
   valuationOpen: boolean;
   onCloseValuation: () => void;
@@ -53,6 +56,7 @@ export default function Modals({
   cart,
   onUpdateCartQty,
   onRemoveFromCart,
+  onOpenCheckout,
   wishlistOpen,
   onCloseWishlist,
   wishlist,
@@ -61,6 +65,7 @@ export default function Modals({
   authOpen,
   onCloseAuth,
   onAuthSuccess,
+  currentUser,
   valuationOpen,
   onCloseValuation,
 }: ModalsProps) {
@@ -74,7 +79,14 @@ export default function Modals({
   const [authName, setAuthName] = useState("");
   const [authPhone, setAuthPhone] = useState("");
   const [authSuccessMsg, setAuthSuccessMsg] = useState("");
+  
+  // Valuation Form State
+  const [valName, setValName] = useState(currentUser?.name || "");
+  const [valPhone, setValPhone] = useState(currentUser?.phone || "+91 ");
+  const [valAddress, setValAddress] = useState("");
+  const [valLoading, setValLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookedRequestNumber, setBookedRequestNumber] = useState("");
 
   const cartSubtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
 
@@ -149,7 +161,14 @@ export default function Modals({
                   <span className="text-slate-500 font-medium">Delivery</span>
                   <span className="text-emerald-600 font-bold">FREE</span>
                 </div>
-                <button className="w-full inline-flex items-center justify-center bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-orange-600/30 transition">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onCloseCart();
+                    onOpenCheckout();
+                  }}
+                  className="w-full inline-flex items-center justify-center bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-orange-600/30 transition hover:scale-[1.01]"
+                >
                   Proceed to Checkout <ArrowRight className="h-4 w-4 ml-2" />
                 </button>
               </div>
@@ -592,53 +611,98 @@ export default function Modals({
 
             {bookingSuccess ? (
               <div className="text-center py-6 space-y-4">
-                <div className="h-16 w-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                <div className="h-16 w-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
                   <Check className="h-8 w-8 stroke-[3]" />
                 </div>
-                <h4 className="font-black text-lg text-slate-900">Pickup Successfully Scheduled!</h4>
-                <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                  Our certified diagnostic executive will visit your address within 2 hours. Payout is transferred directly before technician leaves.
+                <h4 className="font-black text-xl text-slate-900">Pickup Successfully Scheduled!</h4>
+                <p className="text-xs text-slate-600 max-w-sm mx-auto">
+                  Booking Reference: <strong className="text-orange-600 font-extrabold">{bookedRequestNumber || "VAL-849201"}</strong>. Our certified diagnostic executive will visit your address. Payout is transferred directly to your UPI/Bank before the technician leaves.
                 </p>
                 <button
+                  type="button"
                   onClick={() => { onCloseValuation(); setBookingSuccess(false); }}
-                  className="bg-slate-900 text-white px-6 py-2.5 rounded-xl text-xs font-bold"
+                  className="bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition"
                 >
                   Done
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
+              <form 
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setValLoading(true);
+                  try {
+                    const res = await createSellRequest({
+                      userId: currentUser?.id,
+                      deviceCategory: "smartphones",
+                      brand: "Apple",
+                      model: "iPhone 14 Pro Max (256GB)",
+                      bodyCondition: "Flawless - Like New",
+                      screenCondition: "Original Screen (No Scratches)",
+                      estimatedCash: 58500,
+                      customerName: valName || "Customer",
+                      customerPhone: valPhone || "+91 98765 43210",
+                      pickupAddress: valAddress || "Kolkata, West Bengal",
+                      pickupDate: "Tomorrow",
+                      pickupTimeSlot: "11:00 AM - 2:00 PM",
+                    });
+                    if (res.request) {
+                      setBookedRequestNumber(res.request.requestNumber);
+                      setBookingSuccess(true);
+                    }
+                  } catch (err) {
+                    console.error("Valuation booking error:", err);
+                  } finally {
+                    setValLoading(false);
+                  }
+                }}
+                className="space-y-4"
+              >
                 <div>
-                  <label className="text-xs font-bold text-slate-700">Full Name</label>
+                  <label className="text-xs font-bold text-slate-700">Full Name *</label>
                   <input
                     type="text"
+                    required
+                    value={valName}
+                    onChange={(e) => setValName(e.target.value)}
                     placeholder="Subham Roy"
-                    className="w-full mt-1.5 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500"
+                    className="w-full mt-1.5 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-orange-500"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-slate-700">Phone Number for Verification</label>
+                  <label className="text-xs font-bold text-slate-700">Phone Number for Verification *</label>
                   <input
                     type="tel"
+                    required
+                    value={valPhone}
+                    onChange={(e) => setValPhone(e.target.value)}
                     placeholder="+91 98765 43210"
-                    className="w-full mt-1.5 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500"
+                    className="w-full mt-1.5 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-orange-500"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-slate-700">Pickup Address & Pincode</label>
+                  <label className="text-xs font-bold text-slate-700">Pickup Address & Pincode *</label>
                   <input
                     type="text"
-                    placeholder="Flat No., Landmark, City, Pincode"
-                    className="w-full mt-1.5 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500"
+                    required
+                    value={valAddress}
+                    onChange={(e) => setValAddress(e.target.value)}
+                    placeholder="Flat No. 4B, Greenwood Park, Kolkata 700001"
+                    className="w-full mt-1.5 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-orange-500"
                   />
                 </div>
                 <button
-                  onClick={() => setBookingSuccess(true)}
-                  className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-2xl py-4 font-bold shadow-lg shadow-orange-600/30 transition text-sm"
+                  type="submit"
+                  disabled={valLoading}
+                  className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-2xl py-4 font-bold shadow-lg shadow-orange-600/30 transition text-sm flex items-center justify-center gap-2 disabled:opacity-60"
                 >
-                  Confirm Doorstep Inspection
+                  {valLoading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <span>Confirm Doorstep Inspection (Get ₹58,500)</span>
+                  )}
                 </button>
-              </div>
+              </form>
             )}
           </div>
         </div>

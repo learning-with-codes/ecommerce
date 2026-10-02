@@ -25,6 +25,7 @@ interface NavbarProps {
   onOpenWishlist: () => void;
   onOpenAuth: () => void;
   onOpenValuation: () => void;
+  onOpenAccount?: (tab?: "orders" | "sell_requests" | "profile") => void;
   onSignOut: () => void;
 }
 
@@ -36,6 +37,7 @@ export default function Navbar({
   onOpenWishlist,
   onOpenAuth,
   onOpenValuation,
+  onOpenAccount,
   onSignOut,
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -205,6 +207,26 @@ export default function Navbar({
                     <button
                       onClick={() => {
                         setProfileMenuOpen(false);
+                        onOpenAccount?.("orders");
+                      }}
+                      className="w-full text-left px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 flex items-center justify-between"
+                    >
+                      <span>My Orders & Invoices</span>
+                      <span className="text-[10px] text-orange-600 font-extrabold">Track</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        onOpenAccount?.("sell_requests");
+                      }}
+                      className="w-full text-left px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 flex items-center justify-between"
+                    >
+                      <span>Doorstep Sell Requests</span>
+                      <span className="text-[10px] text-emerald-600 font-bold">Active</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setProfileMenuOpen(false);
                         onOpenWishlist();
                       }}
                       className="w-full text-left px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 flex items-center justify-between"
@@ -217,14 +239,11 @@ export default function Navbar({
                     <button
                       onClick={() => {
                         setProfileMenuOpen(false);
-                        onOpenValuation();
+                        onOpenAccount?.("profile");
                       }}
                       className="w-full text-left px-4 py-2.5 hover:bg-orange-50 hover:text-orange-600 flex items-center justify-between"
                     >
-                      <span>My Doorstep Valuations</span>
-                      <span className="text-[10px] text-emerald-600 font-bold">
-                        Active
-                      </span>
+                      <span>Profile & Address</span>
                     </button>
                   </div>
 
@@ -373,6 +392,26 @@ export default function Navbar({
                       {currentUser.email}
                     </p>
                   </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenAccount?.("orders");
+                    }}
+                    className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold text-xs text-center transition"
+                  >
+                    My Orders
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenAccount?.("sell_requests");
+                    }}
+                    className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold text-xs text-center transition"
+                  >
+                    Sell Requests
+                  </button>
                 </div>
                 <button
                   onClick={() => {
