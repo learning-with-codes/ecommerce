@@ -14,9 +14,17 @@ import {
   ShieldCheck,
   Truck,
   Star,
-  Check
+  Check,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
-import { Product, CartItem } from "@/types/retech";
+import { Product, CartItem, AuthUser } from "@/types/retech";
+import {
+  loginWithEmail,
+  signUpWithEmail,
+  loginWithGoogle,
+  getCurrentUser,
+} from "@/lib/auth/authService";
 
 interface ModalsProps {
   cartOpen: boolean;
@@ -33,6 +41,7 @@ interface ModalsProps {
 
   authOpen: boolean;
   onCloseAuth: () => void;
+  onAuthSuccess?: (user: AuthUser) => void;
 
   valuationOpen: boolean;
   onCloseValuation: () => void;
@@ -51,12 +60,15 @@ export default function Modals({
   onRemoveWishlist,
   authOpen,
   onCloseAuth,
+  onAuthSuccess,
   valuationOpen,
   onCloseValuation,
 }: ModalsProps) {
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [authName, setAuthName] = useState("");
@@ -201,16 +213,23 @@ export default function Modals({
 
       {/* 3. Split Auth Modal */}
       {authOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-slate-950/75 backdrop-blur-md transition-opacity duration-300" 
-            onClick={() => {
+            className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               onCloseAuth();
               setAuthSuccessMsg("");
             }} 
           />
 
-          <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl z-10 flex flex-col md:flex-row overflow-hidden max-h-[92vh] border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+          {/* Modal Dialog */}
+          <div 
+            className="relative z-20 w-full max-w-4xl bg-white rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[92vh] border border-slate-100"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Visual Column */}
             <div className="hidden md:flex md:w-5/12 bg-gradient-to-br from-slate-950 via-slate-900 to-orange-950 text-white p-8 flex-col justify-between relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600/20 rounded-full blur-3xl pointer-events-none" />
@@ -318,21 +337,44 @@ export default function Modals({
                   </div>
                 )}
 
+                {authError && (
+                  <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-bold flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-rose-600 flex-shrink-0" />
+                    <span>{authError}</span>
+                  </div>
+                )}
+
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
                     setIsGoogleLoading(true);
-                    setTimeout(() => {
+                    setAuthError("");
+                    try {
+                      const res = await loginWithGoogle();
+                      if (res.error) {
+                        setAuthError(res.error);
+                        setIsGoogleLoading(false);
+                      } else {
+                        setAuthSuccessMsg("Google sign in successful!");
+                        const u = await getCurrentUser();
+                        if (u) onAuthSuccess?.(u);
+                        setTimeout(() => {
+                          onCloseAuth();
+                          setAuthSuccessMsg("");
+                          setIsGoogleLoading(false);
+                        }, 700);
+                      }
+                    } catch (err: unknown) {
+                      const message = err instanceof Error ? err.message : "Google sign in error";
+                      setAuthError(message);
                       setIsGoogleLoading(false);
-                      setAuthSuccessMsg("Successfully authenticated with Google account!");
-                      setTimeout(() => onCloseAuth(), 1200);
-                    }, 900);
+                    }
                   }}
-                  disabled={isGoogleLoading}
+                  disabled={isGoogleLoading || authLoading}
                   className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 shadow-sm transition hover:shadow-md disabled:opacity-60"
                 >
                   {isGoogleLoading ? (
-                    <div className="h-5 w-5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin text-orange-600" />
                   ) : (
                     <svg className="h-5 w-5" viewBox="0 0 24 24">
                       <path
@@ -365,10 +407,49 @@ export default function Modals({
                 </div>
 
                 <form 
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
-                    setAuthSuccessMsg(authMode === "login" ? "Signed in successfully!" : "Account created successfully!");
-                    setTimeout(() => onCloseAuth(), 1200);
+                    setAuthLoading(true);
+                    setAuthError("");
+                    setAuthSuccessMsg("");
+
+                    try {
+                      if (authMode === "login") {
+                        const res = await loginWithEmail(authEmail, authPassword);
+                        if (res.error) {
+                          setAuthError(res.error);
+                        } else if (res.user) {
+                          setAuthSuccessMsg("Signed in successfully!");
+                          onAuthSuccess?.(res.user);
+                          setTimeout(() => {
+                            onCloseAuth();
+                            setAuthSuccessMsg("");
+                          }, 700);
+                        }
+                      } else {
+                        const res = await signUpWithEmail(
+                          authEmail,
+                          authPassword,
+                          authName,
+                          authPhone
+                        );
+                        if (res.error) {
+                          setAuthError(res.error);
+                        } else if (res.user) {
+                          setAuthSuccessMsg("Account created and signed in!");
+                          onAuthSuccess?.(res.user);
+                          setTimeout(() => {
+                            onCloseAuth();
+                            setAuthSuccessMsg("");
+                          }, 700);
+                        }
+                      }
+                    } catch (err: unknown) {
+                      const message = err instanceof Error ? err.message : "Authentication failed";
+                      setAuthError(message);
+                    } finally {
+                      setAuthLoading(false);
+                    }
                   }} 
                   className="space-y-3.5"
                 >
@@ -417,7 +498,7 @@ export default function Modals({
                       {authMode === "login" && (
                         <button
                           type="button"
-                          onClick={() => alert("Password reset instructions sent to your email.")}
+                          onClick={() => setAuthSuccessMsg("Password reset instructions have been sent to your email.")}
                           className="text-[11px] font-bold text-orange-600 hover:text-orange-700 hover:underline"
                         >
                           Forgot password?
@@ -459,8 +540,12 @@ export default function Modals({
 
                   <button
                     type="submit"
-                    className="w-full mt-2 inline-flex items-center justify-center bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-2xl py-3.5 text-sm font-extrabold shadow-lg shadow-orange-600/25 transition-all hover:scale-[1.01]"
+                    disabled={authLoading || isGoogleLoading}
+                    className="w-full mt-2 inline-flex items-center justify-center bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-2xl py-3.5 text-sm font-extrabold shadow-lg shadow-orange-600/25 transition-all hover:scale-[1.01] disabled:opacity-60"
                   >
+                    {authLoading ? (
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    ) : null}
                     <span>{authMode === "login" ? "Sign In to ReTech" : "Create My Account"}</span>
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </button>

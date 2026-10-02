@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TopAnnouncement from "@/components/structure/TopAnnouncement";
 import Navbar from "@/components/structure/Navbar";
 import HeroCarousel from "@/components/structure/HeroCarousel";
@@ -13,9 +13,11 @@ import ReviewsSection from "@/components/structure/ReviewsSection";
 import Footer from "@/components/structure/Footer";
 import Modals from "@/components/structure/Modals";
 
-import { Product, CartItem } from "@/types/retech";
+import { Product, CartItem, AuthUser } from "@/types/retech";
+import { getCurrentUser, logoutUser } from "@/lib/auth/authService";
 
 export default function HomePage() {
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [activeCategoryTab, setActiveCategoryTab] = useState("all");
@@ -24,6 +26,18 @@ export default function HomePage() {
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [valuationOpen, setValuationOpen] = useState(false);
+
+  useEffect(() => {
+    // Check active login state on mount
+    getCurrentUser().then((user) => {
+      if (user) setCurrentUser(user);
+    });
+  }, []);
+
+  const handleSignOut = async () => {
+    await logoutUser();
+    setCurrentUser(null);
+  };
 
   const handleAddToCart = (product: Product) => {
     setCart((prev) => {
@@ -75,10 +89,12 @@ export default function HomePage() {
       <Navbar
         cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
         wishlistCount={wishlist.length}
+        currentUser={currentUser}
         onOpenCart={() => setCartOpen(true)}
         onOpenWishlist={() => setWishlistOpen(true)}
         onOpenAuth={() => setAuthOpen(true)}
         onOpenValuation={() => setValuationOpen(true)}
+        onSignOut={handleSignOut}
       />
 
       <main className="flex-1">
@@ -130,6 +146,7 @@ export default function HomePage() {
         onRemoveWishlist={(id) => setWishlist((prev) => prev.filter((p) => p.id !== id))}
         authOpen={authOpen}
         onCloseAuth={() => setAuthOpen(false)}
+        onAuthSuccess={(user) => setCurrentUser(user)}
         valuationOpen={valuationOpen}
         onCloseValuation={() => setValuationOpen(false)}
       />

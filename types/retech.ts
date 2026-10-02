@@ -55,3 +55,11 @@ export interface CategoryItem {
   tag: string;
   image: string;
 }
+
+export interface AuthUser {
+  id: string;
+  email?: string;
+  name?: string;
+  avatar?: string;
+  phone?: string;
+}

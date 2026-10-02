@@ -1,0 +1,6 @@
+{
+  "name": "ReTech - Smart ReCommerce",
+  "description": "Smart ReCommerce platform to buy, sell, and repair electronics with instant device valuation.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
