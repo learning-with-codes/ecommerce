@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Flame, Heart, ShieldCheck, ShoppingBag } from "lucide-react";
+import { Flame, Heart, ShieldCheck, ShoppingBag, Eye } from "lucide-react";
 import { PRODUCTS } from "@/data/retechData";
 import { Product } from "@/types/retech";
 
@@ -11,6 +11,7 @@ interface TrendingSectionProps {
   wishlist: Product[];
   onToggleWishlist: (p: Product) => void;
   onAddToCart: (p: Product) => void;
+  onViewDetails?: (p: Product) => void;
 }
 
 export default function TrendingSection({
@@ -18,7 +19,8 @@ export default function TrendingSection({
   onSelectCategory,
   wishlist,
   onToggleWishlist,
-  onAddToCart
+  onAddToCart,
+  onViewDetails,
 }: TrendingSectionProps) {
   const filteredProducts = activeCategoryTab === "all"
     ? PRODUCTS
@@ -62,15 +64,21 @@ export default function TrendingSection({
                 className="bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-xl hover:border-orange-300 transition-all duration-300 flex flex-col justify-between group"
               >
                 <div className="space-y-4">
-                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100">
+                  <div
+                    onClick={() => onViewDetails?.(product)}
+                    className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 cursor-pointer"
+                  >
                     <img
                       src={product.image}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <button
-                      onClick={() => onToggleWishlist(product)}
-                      className="absolute top-3 right-3 p-2 rounded-full bg-white/90 backdrop-blur shadow-sm text-slate-600 hover:text-rose-500 transition"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleWishlist(product);
+                      }}
+                      className="absolute top-3 right-3 p-2 rounded-full bg-white/90 backdrop-blur shadow-sm text-slate-600 hover:text-rose-500 transition z-10"
                       aria-label="Save item"
                     >
                       <Heart className={`h-4 w-4 ${isSaved ? "fill-rose-500 text-rose-500" : ""}`} />
@@ -85,6 +93,12 @@ export default function TrendingSection({
                         </span>
                       )}
                     </div>
+                    {/* Hover Quick View Button */}
+                    <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                      <span className="bg-white/95 text-slate-900 text-xs font-extrabold px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 backdrop-blur transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                        <Eye className="h-3.5 w-3.5 text-orange-600" /> View Details
+                      </span>
+                    </div>
                   </div>
 
                   <div className="space-y-1.5">
@@ -94,7 +108,10 @@ export default function TrendingSection({
                         ★ {product.rating} <span className="text-slate-400 font-normal">({product.reviewsCount})</span>
                       </span>
                     </div>
-                    <h3 className="font-extrabold text-slate-950 text-sm sm:text-base line-clamp-1 group-hover:text-orange-600 transition-colors">
+                    <h3
+                      onClick={() => onViewDetails?.(product)}
+                      className="font-extrabold text-slate-950 text-sm sm:text-base line-clamp-1 group-hover:text-orange-600 transition-colors cursor-pointer"
+                    >
                       {product.name}
                     </h3>
                     <p className="text-xs text-slate-500 flex items-center gap-1">
@@ -103,8 +120,8 @@ export default function TrendingSection({
                   </div>
                 </div>
 
-                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
-                  <div>
+                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <div onClick={() => onViewDetails?.(product)} className="cursor-pointer">
                     <p className="text-xl font-black text-slate-950">
                       ₹{product.price.toLocaleString("en-IN")}
                     </p>
@@ -112,12 +129,23 @@ export default function TrendingSection({
                       ₹{product.originalPrice.toLocaleString("en-IN")}
                     </p>
                   </div>
-                  <button
-                    onClick={() => onAddToCart(product)}
-                    className="inline-flex items-center bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold px-4 py-2.5 shadow-md shadow-orange-600/20 transition"
-                  >
-                    <ShoppingBag className="h-4 w-4 mr-1.5" /> Add to Cart
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => onViewDetails?.(product)}
+                      className="p-2.5 rounded-xl border border-slate-200 text-slate-700 hover:text-orange-600 hover:border-orange-300 hover:bg-orange-50/50 transition text-xs font-bold"
+                      title="Inspect full specs & diagnostics"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onAddToCart(product)}
+                      className="inline-flex items-center bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold px-3.5 py-2.5 shadow-md shadow-orange-600/20 transition active:scale-95"
+                    >
+                      <ShoppingBag className="h-4 w-4 mr-1.5" /> Add
+                    </button>
+                  </div>
                 </div>
               </div>
             );

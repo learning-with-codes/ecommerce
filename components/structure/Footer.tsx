@@ -64,7 +64,14 @@ export default function Footer() {
 
         <div className="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <p>© {new Date().getFullYear()} ReTech Inc. All rights reserved.</p>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+            <a
+              href="/api/download-guide"
+              download="ReTech_Supabase_Vercel_Setup_Guide.pdf"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600/20 text-orange-400 hover:bg-orange-600/30 hover:text-orange-300 font-bold border border-orange-500/30 transition"
+            >
+              <span>Download Backend Setup Guide (PDF)</span>
+            </a>
             <span className="hover:text-slate-400 cursor-pointer">Privacy Policy</span>
             <span className="hover:text-slate-400 cursor-pointer">Terms of Exchange</span>
             <span className="hover:text-slate-400 cursor-pointer">Warranty Registration</span>

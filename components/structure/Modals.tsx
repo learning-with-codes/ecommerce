@@ -40,6 +40,7 @@ interface ModalsProps {
   wishlist: Product[];
   onAddToCart: (p: Product) => void;
   onRemoveWishlist: (productId: string) => void;
+  onViewDetails?: (p: Product) => void;
 
   authOpen: boolean;
   onCloseAuth: () => void;
@@ -62,6 +63,7 @@ export default function Modals({
   wishlist,
   onAddToCart,
   onRemoveWishlist,
+  onViewDetails,
   authOpen,
   onCloseAuth,
   onAuthSuccess,
@@ -118,11 +120,25 @@ export default function Modals({
               ) : (
                 cart.map(({ product, quantity }) => (
                   <div key={product.id} className="flex gap-4 p-3 border border-slate-200 rounded-2xl items-center bg-white shadow-sm">
-                    <div className="relative h-16 w-16 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0">
-                      <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                    <div
+                      onClick={() => {
+                        onCloseCart();
+                        onViewDetails?.(product);
+                      }}
+                      className="relative h-16 w-16 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 cursor-pointer"
+                    >
+                      <img src={product.image} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-xs text-slate-900 truncate">{product.name}</p>
+                      <p
+                        onClick={() => {
+                          onCloseCart();
+                          onViewDetails?.(product);
+                        }}
+                        className="font-bold text-xs text-slate-900 truncate hover:text-orange-600 cursor-pointer transition-colors"
+                      >
+                        {product.name}
+                      </p>
                       <p className="text-xs text-orange-600 font-black mt-1">₹{product.price.toLocaleString("en-IN")}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <button
@@ -196,12 +212,18 @@ export default function Modals({
               ) : (
                 wishlist.map((p) => (
                   <div key={p.id} className="flex items-center justify-between p-3 border rounded-2xl">
-                    <div className="flex items-center gap-3">
+                    <div
+                      onClick={() => {
+                        onCloseWishlist();
+                        onViewDetails?.(p);
+                      }}
+                      className="flex items-center gap-3 cursor-pointer group"
+                    >
                       <div className="relative h-12 w-12 rounded-lg bg-slate-100 overflow-hidden">
-                        <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+                        <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-slate-900 line-clamp-1">{p.name}</p>
+                        <p className="text-xs font-bold text-slate-900 line-clamp-1 group-hover:text-orange-600 transition-colors">{p.name}</p>
                         <p className="text-xs text-orange-600 font-bold">₹{p.price.toLocaleString("en-IN")}</p>
                       </div>
                     </div>

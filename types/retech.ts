@@ -1,3 +1,22 @@
+export interface DiagnosticItem {
+  feature: string;
+  category: "Display" | "Camera" | "Performance" | "Battery" | "Audio" | "Connectivity";
+  status: "PASSED" | "EXCELLENT" | "OEM_ORIGINAL";
+  detail: string;
+}
+
+export interface ProductVariant {
+  storage: string;
+  price: number;
+  originalPrice: number;
+}
+
+export interface ProductColor {
+  name: string;
+  hex: string;
+  image?: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -13,6 +32,14 @@ export interface Product {
   warranty: string;
   badge?: string;
   testedPoints: number;
+  description?: string;
+  batteryHealth?: number;
+  galleryImages?: string[];
+  specs?: Record<string, string>;
+  variants?: ProductVariant[];
+  colors?: ProductColor[];
+  diagnostics?: DiagnosticItem[];
+  boxContents?: string[];
 }
 
 export interface CartItem {

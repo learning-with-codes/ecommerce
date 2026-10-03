@@ -75,7 +75,50 @@ export const PRODUCTS: Product[] = [
     condition: "Refurbished - Like New",
     warranty: "1 Year ReTech Warranty",
     badge: "Top Seller",
-    testedPoints: 45
+    testedPoints: 45,
+    batteryHealth: 98,
+    description: "The peak of iPhone engineering with aerospace-grade titanium frame, A17 Pro 3nm chip, and 5x tetraprism optical telephoto zoom. Thoroughly audited across 45 critical diagnostic checkpoints with zero software issues and pristine OLED panel.",
+    galleryImages: [
+      "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=1000&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1695048133021-995295c52c6f?w=1000&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=1000&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=1000&auto=format&fit=crop&q=80",
+    ],
+    specs: {
+      "Display": "6.7\" Super Retina XDR OLED with ProMotion 120Hz",
+      "Chipset": "Apple A17 Pro (3nm) 6-Core GPU with Hardware Ray Tracing",
+      "Main Camera": "48 MP Quad-Pixel (f/1.78, Sensor-shift OIS)",
+      "Telephoto": "12 MP 5x Optical Telephoto (120mm focal length)",
+      "Battery Life": "Up to 29 hrs video playback (98% OEM Capacity)",
+      "Connectivity": "USB-C 3.0 (up to 10Gbps), 5G Dual SIM, Wi-Fi 6E",
+      "Security": "Face ID Secure Enclave, Crash Detection & Satellite SOS",
+    },
+    variants: [
+      { storage: "256GB", price: 94999, originalPrice: 134900 },
+      { storage: "512GB", price: 109999, originalPrice: 154900 },
+      { storage: "1TB", price: 124999, originalPrice: 174900 },
+    ],
+    colors: [
+      { name: "Natural Titanium", hex: "#9b958c" },
+      { name: "Blue Titanium", hex: "#2f3844" },
+      { name: "White Titanium", hex: "#e5e5e0" },
+      { name: "Black Titanium", hex: "#232426" },
+    ],
+    diagnostics: [
+      { feature: "Super Retina Display", category: "Display", status: "PASSED", detail: "TrueTone & ProMotion 120Hz verified, 0 dead pixels" },
+      { feature: "Tetraprism 5x Zoom Camera", category: "Camera", status: "PASSED", detail: "All 3 lenses laser calibrated, sensor-shift OIS active" },
+      { feature: "Lithium OEM Battery", category: "Battery", status: "EXCELLENT", detail: "98% battery health, zero thermal degradation" },
+      { feature: "A17 Pro & 8GB RAM", category: "Performance", status: "PASSED", detail: "Geekbench thermal stability benchmark cleared 100%" },
+      { feature: "Stereo Speakers & 3D Mics", category: "Audio", status: "PASSED", detail: "Frequency response verified against reference acoustic curve" },
+      { feature: "5G & Wi-Fi 6E Modem", category: "Connectivity", status: "PASSED", detail: "Jio & Airtel 5G standalone carrier aggregation verified" },
+    ],
+    boxContents: [
+      "Certified Refurbished iPhone 15 Pro Max",
+      "Braided USB-C Charge Cable (1m)",
+      "ReTech 45-Point Inspection Certificate",
+      "1-Year ReTech Warranty Card",
+      "SIM Ejector Pin & Eco-Safe Packaging",
+    ],
   },
   {
     id: "p2",
@@ -91,7 +134,46 @@ export const PRODUCTS: Product[] = [
     condition: "Open Box",
     warranty: "Official Brand Warranty",
     badge: "Almost New",
-    testedPoints: 45
+    testedPoints: 45,
+    batteryHealth: 100,
+    description: "Impossibly thin design powered by the ground-breaking M3 chip. Delivers blazing performance with 18-hour battery longevity, Liquid Retina display with 500 nits brightness, and silent fanless operation.",
+    galleryImages: [
+      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1000&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=1000&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=1000&auto=format&fit=crop&q=80",
+    ],
+    specs: {
+      "Display": "15.3\" Liquid Retina IPS Display (2880 x 1864, 500 nits, P3)",
+      "Processor": "Apple M3 (8-Core CPU, 10-Core GPU with Dynamic Caching)",
+      "Unified Memory": "16GB Fast Unified RAM (100GB/s bandwidth)",
+      "Storage": "512GB High-speed PCIe NVMe SSD",
+      "Keyboard": "Backlit Magic Keyboard with Touch ID biometric sensor",
+      "Audio": "Six-speaker sound system with force-cancelling woofers",
+      "Battery": "Up to 18 hours battery life (100% capacity, 14 cycles)",
+    },
+    variants: [
+      { storage: "512GB / 16GB", price: 82499, originalPrice: 119900 },
+      { storage: "1TB / 16GB", price: 98999, originalPrice: 139900 },
+    ],
+    colors: [
+      { name: "Midnight", hex: "#1f2732" },
+      { name: "Space Gray", hex: "#4b4d52" },
+      { name: "Silver", hex: "#e2e4e6" },
+      { name: "Starlight", hex: "#f0ece1" },
+    ],
+    diagnostics: [
+      { feature: "Liquid Retina Panel", category: "Display", status: "PASSED", detail: "Color calibration & uniform 500-nit luminance verified" },
+      { feature: "M3 SoC & Neural Engine", category: "Performance", status: "PASSED", detail: "Full 16-Core Neural Engine stress test passed with 0 throttle" },
+      { feature: "Battery Health", category: "Battery", status: "OEM_ORIGINAL", detail: "100% OEM capacity, only 14 lifetime charging cycles" },
+      { feature: "Touch ID & Secure Enclave", category: "Performance", status: "PASSED", detail: "Biometrics read instant 0.1s unlock verified" },
+      { feature: "MagSafe 3 & USB4/TB", category: "Connectivity", status: "PASSED", detail: "40Gbps Thunderbolt speeds and fast charging confirmed" },
+    ],
+    boxContents: [
+      "Open Box MacBook Air 15\" M3",
+      "35W Dual USB-C Port Compact Power Adapter",
+      "USB-C to MagSafe 3 Cable (Color Matched 2m)",
+      "Original Apple Packaging & ReTech Verification Seal",
+    ],
   },
   {
     id: "p3",
@@ -107,7 +189,44 @@ export const PRODUCTS: Product[] = [
     condition: "Refurbished - Like New",
     warranty: "1 Year ReTech Warranty",
     badge: "Hot Deal",
-    testedPoints: 45
+    testedPoints: 45,
+    batteryHealth: 97,
+    description: "The ultimate Android powerhouse featuring Galaxy AI suite, embedded S-Pen, quad-telephoto optical system with 200MP sensor, and flat titanium frame coated with Corning Gorilla Armor anti-reflective glass.",
+    galleryImages: [
+      "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=1000&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=1000&auto=format&fit=crop&q=80",
+    ],
+    specs: {
+      "Display": "6.8\" Dynamic LTPO AMOLED 2X (1-120Hz, 2600 nits, QHD+)",
+      "Processor": "Qualcomm Snapdragon 8 Gen 3 for Galaxy (4nm)",
+      "Camera": "200 MP (OIS) + 50 MP (5x) + 10 MP (3x) + 12 MP (UW)",
+      "Stylus": "Built-in Bluetooth S-Pen with Air Actions",
+      "Battery": "5,000 mAh with 45W Fast Charging (97% Capacity)",
+      "AI Features": "Circle to Search, Live Call Translate, Note Assist",
+    },
+    variants: [
+      { storage: "256GB", price: 81999, originalPrice: 129999 },
+      { storage: "512GB", price: 89999, originalPrice: 139999 },
+      { storage: "1TB", price: 104999, originalPrice: 159999 },
+    ],
+    colors: [
+      { name: "Titanium Gray", hex: "#7a7775" },
+      { name: "Titanium Black", hex: "#2b2a29" },
+      { name: "Titanium Violet", hex: "#4d425c" },
+      { name: "Titanium Yellow", hex: "#f0dd9c" },
+    ],
+    diagnostics: [
+      { feature: "2600 nits Dynamic AMOLED", category: "Display", status: "PASSED", detail: "Anti-reflective Gorilla Armor in 100% scratch-free condition" },
+      { feature: "200MP ISOCELL & 100x Zoom", category: "Camera", status: "PASSED", detail: "Periscope prisms and optical stabilization verified" },
+      { feature: "S-Pen Digitizer", category: "Performance", status: "PASSED", detail: "4096 pressure levels and gesture sensor fully functional" },
+      { feature: "Ultrasonic Fingerprint", category: "Performance", status: "PASSED", detail: "Sub-surface acoustic scan responds in 0.15s" },
+    ],
+    boxContents: [
+      "Certified Refurbished Galaxy S24 Ultra",
+      "Built-in OEM S-Pen",
+      "Type-C to Type-C 3A Fast Charging Cable",
+      "ReTech Diagnostic Test Certificate & 1-Year Card",
+    ],
   },
   {
     id: "p4",
@@ -123,7 +242,37 @@ export const PRODUCTS: Product[] = [
     condition: "Refurbished - Good",
     warranty: "6 Month Warranty",
     badge: "Best Sound",
-    testedPoints: 32
+    testedPoints: 32,
+    batteryHealth: 99,
+    description: "Industry-leading Active Noise Cancellation with dual processors and 8 microphones. Features Auto NC Optimizer, 30mm precision-engineered carbon drivers, and 30-hour battery life with 3-minute quick charging.",
+    galleryImages: [
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1000&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=1000&auto=format&fit=crop&q=80",
+    ],
+    specs: {
+      "Noise Cancellation": "Dual Processor V1 + HD QN1 with 8 Microphones",
+      "Driver Unit": "30mm precision Carbon Fiber composite dome",
+      "Codec Support": "LDAC, AAC, SBC (Hi-Res Audio Wireless Certified)",
+      "Battery Life": "30 Hours with ANC on, 40 Hours with ANC off",
+      "Fast Charging": "3 minutes gives 3 hours playback via USB-PD",
+      "Microphones": "4 Beamforming mics with AI wind noise reduction",
+    },
+    colors: [
+      { name: "Midnight Black", hex: "#1c1c1e" },
+      { name: "Silver Ecru", hex: "#e3ded4" },
+      { name: "Midnight Blue", hex: "#1f293d" },
+    ],
+    diagnostics: [
+      { feature: "Active Noise Cancellation", category: "Audio", status: "PASSED", detail: "Acoustic chamber test verifies -38dB ambient attenuation" },
+      { feature: "Ear Cushions & Headband", category: "Display", status: "PASSED", detail: "Soft-fit leather fully sanitized with hospital-grade UV-C" },
+      { feature: "Battery Pack", category: "Battery", status: "EXCELLENT", detail: "Holding 99% rated charge across full continuous 28hr drain test" },
+    ],
+    boxContents: [
+      "Sanitized Sony WH-1000XM5 Headset",
+      "Original Collapsible Magnetic Carrying Case",
+      "Gold-Plated 3.5mm Audio Cable",
+      "USB-A to USB-C Charging Cable",
+    ],
   },
   {
     id: "p5",
@@ -139,7 +288,41 @@ export const PRODUCTS: Product[] = [
     condition: "Refurbished - Like New",
     warranty: "1 Year ReTech Warranty",
     badge: "Creator Choice",
-    testedPoints: 45
+    testedPoints: 45,
+    batteryHealth: 96,
+    description: "Astonishing performance and all-day battery life with Apple M2 chip. Features ProMotion 120Hz Liquid Retina display, Apple Pencil hover detection, ProRes video capture, and ultra-fast Wi-Fi 6E.",
+    galleryImages: [
+      "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=1000&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1561154464-82e9adf32764?w=1000&auto=format&fit=crop&q=80",
+    ],
+    specs: {
+      "Display": "11\" Liquid Retina IPS (2388 x 1668, ProMotion 120Hz, 600 nits)",
+      "Processor": "Apple M2 (8-Core CPU, 10-Core GPU, 16-Core Neural Engine)",
+      "Pencil Support": "Apple Pencil (2nd Gen) with Hover detection up to 12mm",
+      "Cameras": "12MP Wide + 10MP Ultra-Wide + LiDAR Scanner",
+      "Audio": "Four Speaker Audio with 5 studio-quality microphones",
+      "Port": "Thunderbolt 4 / USB4 port (up to 40Gbps)",
+    },
+    variants: [
+      { storage: "128GB", price: 54999, originalPrice: 81900 },
+      { storage: "256GB", price: 62999, originalPrice: 91900 },
+      { storage: "512GB", price: 74999, originalPrice: 111900 },
+    ],
+    colors: [
+      { name: "Space Gray", hex: "#4b4d52" },
+      { name: "Silver", hex: "#e2e4e6" },
+    ],
+    diagnostics: [
+      { feature: "ProMotion 120Hz Panel", category: "Display", status: "PASSED", detail: "Zero backlight bleed, smooth touch tracking at 240Hz" },
+      { feature: "M2 SoC Benchmark", category: "Performance", status: "PASSED", detail: "Scores match factory new benchmarks within 1.2% variance" },
+      { feature: "LiDAR Distance Scanner", category: "Camera", status: "PASSED", detail: "3D spatial mapping and AR measurement laser calibrated" },
+    ],
+    boxContents: [
+      "Certified Refurbished iPad Pro 11\" M2",
+      "20W USB-C Power Adapter",
+      "USB-C Charge Cable (1m)",
+      "1-Year ReTech Warranty Seal & Box",
+    ],
   },
   {
     id: "p6",
@@ -155,7 +338,36 @@ export const PRODUCTS: Product[] = [
     condition: "Refurbished - Good",
     warranty: "6 Month Warranty",
     badge: "Super Value",
-    testedPoints: 45
+    testedPoints: 45,
+    batteryHealth: 94,
+    description: "Futuristic ultrabook with seamless glass haptic touchpad, capacitive touch function row, zero-lattice keyboard, and breathtaking 3.5K OLED InfinityEdge touchscreen with 100% DCI-P3 color gamut.",
+    galleryImages: [
+      "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=1000&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=1000&auto=format&fit=crop&q=80",
+    ],
+    specs: {
+      "Display": "13.4\" 3.5K (3456 x 2160) OLED InfinityEdge Touch (400 nits)",
+      "Processor": "Intel Core i7-1360P 12-Core (up to 5.0 GHz Turbo)",
+      "Memory": "16GB LPDDR5 6000MHz Dual-Channel RAM",
+      "Storage": "1TB M.2 PCIe Gen 4 NVMe Solid State Drive",
+      "Touchpad": "Seamless Glass Haptic Force Pad with invisible borders",
+      "Biometrics": "Windows Hello IR Face Recognition + Fingerprint Reader",
+    },
+    colors: [
+      { name: "Platinum Silver", hex: "#d8d9dd" },
+      { name: "Graphite", hex: "#37383c" },
+    ],
+    diagnostics: [
+      { feature: "3.5K OLED Touch Panel", category: "Display", status: "PASSED", detail: "Infinite contrast ratio with 10-point capacitive multitouch" },
+      { feature: "Glass Haptic Touchpad", category: "Performance", status: "PASSED", detail: "Piezoelectric haptic motor responsiveness calibrated" },
+      { feature: "Thermal Cooling", category: "Performance", status: "PASSED", detail: "Dual fans and vapor chamber cleaned and repasted with thermal grease" },
+    ],
+    boxContents: [
+      "Refurbished Dell XPS 13 Plus 9320",
+      "Original 60W Type-C Slim AC Adapter",
+      "USB-C to USB-A Adapter Dongle",
+      "ReTech 45-Point Hardware Certified Report",
+    ],
   }
 ];
 

@@ -14,6 +14,7 @@ import Footer from "@/components/structure/Footer";
 import Modals from "@/components/structure/Modals";
 import CheckoutModal from "@/components/structure/CheckoutModal";
 import AccountModal from "@/components/structure/AccountModal";
+import ProductDetailsModal from "@/components/structure/ProductDetailsModal";
 
 import { Product, CartItem, AuthUser } from "@/types/retech";
 import { getCurrentUser, logoutUser } from "@/lib/auth/authService";
@@ -31,6 +32,10 @@ export default function HomePage() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [accountTab, setAccountTab] = useState<"orders" | "sell_requests" | "profile">("orders");
+
+  // Product View Details State
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [productDetailsOpen, setProductDetailsOpen] = useState(false);
 
   useEffect(() => {
     // Check active login state on mount
@@ -54,17 +59,35 @@ export default function HomePage() {
     setCart([]);
   };
 
-  const handleAddToCart = (product: Product) => {
+  const handleViewDetails = (product: Product) => {
+    setSelectedProduct(product);
+    setProductDetailsOpen(true);
+  };
+
+  const handleAddToCart = (product: Product, quantity = 1) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
         return prev.map((item) =>
-          item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
         );
       }
-      return [...prev, { product, quantity: 1 }];
+      return [...prev, { product, quantity }];
     });
     setCartOpen(true);
+  };
+
+  const handleBuyNow = (product: Product, quantity = 1) => {
+    setCart((prev) => {
+      const existing = prev.find((item) => item.product.id === product.id);
+      if (existing) {
+        return prev.map((item) =>
+          item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+        );
+      }
+      return [...prev, { product, quantity }];
+    });
+    setCheckoutOpen(true);
   };
 
   const handleUpdateCartQty = (productId: string, delta: number) => {
@@ -133,10 +156,14 @@ export default function HomePage() {
           wishlist={wishlist}
           onToggleWishlist={handleToggleWishlist}
           onAddToCart={handleAddToCart}
+          onViewDetails={handleViewDetails}
         />
 
         {/* 7. Certified Refurbished Marketplace */}
-        <RefurbishedSection onAddToCart={handleAddToCart} />
+        <RefurbishedSection
+          onAddToCart={handleAddToCart}
+          onViewDetails={handleViewDetails}
+        />
 
         {/* 8. Instant Cash Sell Valuation Calculator */}
         <SellCalculator onOpenValuation={() => setValuationOpen(true)} />
@@ -161,6 +188,7 @@ export default function HomePage() {
         wishlist={wishlist}
         onAddToCart={handleAddToCart}
         onRemoveWishlist={(id) => setWishlist((prev) => prev.filter((p) => p.id !== id))}
+        onViewDetails={handleViewDetails}
         authOpen={authOpen}
         onCloseAuth={() => setAuthOpen(false)}
         onAuthSuccess={(user) => setCurrentUser(user)}
@@ -190,6 +218,17 @@ export default function HomePage() {
           el?.scrollIntoView({ behavior: "smooth" });
         }}
         initialTab={accountTab}
+      />
+
+      {/* 14. Professional Product View Details Modal */}
+      <ProductDetailsModal
+        product={selectedProduct}
+        isOpen={productDetailsOpen}
+        onClose={() => setProductDetailsOpen(false)}
+        onAddToCart={handleAddToCart}
+        onBuyNow={handleBuyNow}
+        isWishlisted={selectedProduct ? wishlist.some((p) => p.id === selectedProduct.id) : false}
+        onToggleWishlist={handleToggleWishlist}
       />
     </div>
   );

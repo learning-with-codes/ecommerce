@@ -1,15 +1,16 @@
 "use client";
 
 import React from "react";
-import { Sparkles, CheckCircle2, ShieldCheck, Award } from "lucide-react";
+import { Sparkles, CheckCircle2, ShieldCheck, Award, Eye, ShoppingBag } from "lucide-react";
 import { PRODUCTS } from "@/data/retechData";
 import { Product } from "@/types/retech";
 
 interface RefurbishedSectionProps {
   onAddToCart: (p: Product) => void;
+  onViewDetails?: (p: Product) => void;
 }
 
-export default function RefurbishedSection({ onAddToCart }: RefurbishedSectionProps) {
+export default function RefurbishedSection({ onAddToCart, onViewDetails }: RefurbishedSectionProps) {
   const refurbishedItems = PRODUCTS.filter((p) => p.condition.includes("Refurbished"));
 
   return (
@@ -48,7 +49,10 @@ export default function RefurbishedSection({ onAddToCart }: RefurbishedSectionPr
               className="bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-xl hover:border-orange-300 transition-all duration-300 flex flex-col justify-between group"
             >
               <div className="space-y-4">
-                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100">
+                <div
+                  onClick={() => onViewDetails?.(product)}
+                  className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 cursor-pointer"
+                >
                   <img
                     src={product.image}
                     alt={product.name}
@@ -62,6 +66,12 @@ export default function RefurbishedSection({ onAddToCart }: RefurbishedSectionPr
                       Save {product.discount}%
                     </span>
                   </div>
+                  {/* Hover Quick View Button */}
+                  <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                    <span className="bg-white/95 text-slate-900 text-xs font-extrabold px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 backdrop-blur transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                      <Eye className="h-3.5 w-3.5 text-orange-600" /> View Details
+                    </span>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -71,7 +81,10 @@ export default function RefurbishedSection({ onAddToCart }: RefurbishedSectionPr
                       ★ {product.rating} ({product.reviewsCount})
                     </span>
                   </div>
-                  <h3 className="font-bold text-slate-900 text-base line-clamp-1 group-hover:text-orange-600 transition-colors">
+                  <h3
+                    onClick={() => onViewDetails?.(product)}
+                    className="font-bold text-slate-900 text-base line-clamp-1 group-hover:text-orange-600 transition-colors cursor-pointer"
+                  >
                     {product.name}
                   </h3>
                   <div className="flex items-center gap-2 pt-1 text-xs text-slate-600 font-medium">
@@ -81,8 +94,8 @@ export default function RefurbishedSection({ onAddToCart }: RefurbishedSectionPr
                 </div>
               </div>
 
-              <div className="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between">
-                <div>
+              <div className="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div onClick={() => onViewDetails?.(product)} className="cursor-pointer">
                   <p className="text-xl font-black text-slate-900">
                     ₹{product.price.toLocaleString("en-IN")}
                   </p>
@@ -90,12 +103,23 @@ export default function RefurbishedSection({ onAddToCart }: RefurbishedSectionPr
                     ₹{product.originalPrice.toLocaleString("en-IN")}
                   </p>
                 </div>
-                <button
-                  onClick={() => onAddToCart(product)}
-                  className="bg-slate-900 hover:bg-orange-600 text-white rounded-xl font-bold text-xs px-4 py-2.5 transition"
-                >
-                  Add to Cart
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => onViewDetails?.(product)}
+                    className="p-2.5 rounded-xl border border-slate-200 text-slate-700 hover:text-orange-600 hover:border-orange-300 hover:bg-orange-50/50 transition text-xs font-bold"
+                    title="Inspect full diagnostics & specs"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onAddToCart(product)}
+                    className="bg-slate-900 hover:bg-orange-600 text-white rounded-xl font-bold text-xs px-3.5 py-2.5 transition flex items-center gap-1.5 active:scale-95"
+                  >
+                    <ShoppingBag className="h-4 w-4" /> Add
+                  </button>
+                </div>
               </div>
             </div>
           ))}
