@@ -20,15 +20,6 @@ export default function TopAnnouncement({ onOpenValuation }: TopAnnouncementProp
           </span>
         </div>
         <div className="flex items-center gap-3 text-orange-100 text-[11px]">
-          <a
-            href="/api/download-guide"
-            download="ReTech_Supabase_Vercel_Setup_Guide.pdf"
-            className="text-white bg-black/25 hover:bg-black/40 px-2 py-0.5 rounded font-bold transition flex items-center gap-1"
-            title="Download complete backend & database setup documentation in PDF format"
-          >
-            <span>Backend Guide (PDF)</span>
-          </a>
-          <span className="h-3 w-px bg-orange-400" />
           <button onClick={onOpenValuation} className="text-white font-bold underline hover:text-amber-200">
             Get Instant Sell Cash
           </button>

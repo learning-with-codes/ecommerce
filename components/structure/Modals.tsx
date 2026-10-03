@@ -17,6 +17,7 @@ import {
   Check,
   AlertCircle,
   Loader2,
+  Lock,
 } from "lucide-react";
 import { Product, CartItem, AuthUser } from "@/types/retech";
 import {
@@ -46,6 +47,7 @@ interface ModalsProps {
   onCloseAuth: () => void;
   onAuthSuccess?: (user: AuthUser) => void;
   currentUser?: AuthUser | null;
+  authNotice?: string | null;
 
   valuationOpen: boolean;
   onCloseValuation: () => void;
@@ -68,6 +70,7 @@ export default function Modals({
   onCloseAuth,
   onAuthSuccess,
   currentUser,
+  authNotice,
   valuationOpen,
   onCloseValuation,
 }: ModalsProps) {
@@ -185,8 +188,21 @@ export default function Modals({
                   }}
                   className="w-full inline-flex items-center justify-center bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-orange-600/30 transition hover:scale-[1.01]"
                 >
-                  Proceed to Checkout <ArrowRight className="h-4 w-4 ml-2" />
+                  {currentUser ? (
+                    <>
+                      Proceed to Checkout <ArrowRight className="h-4 w-4 ml-2" />
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="h-4 w-4 mr-2" /> Sign In &amp; Proceed to Checkout
+                    </>
+                  )}
                 </button>
+                {!currentUser && (
+                  <p className="text-[11px] text-slate-500 text-center font-medium">
+                    🔒 Account login required to secure 1-year warranty &amp; delivery
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -370,6 +386,16 @@ export default function Modals({
                       : "Sign up today to explore exclusive refurbished discounts and get doorstep cashouts."}
                   </p>
                 </div>
+
+                {authNotice && (
+                  <div className="p-3 bg-orange-50 border border-orange-200 text-orange-950 rounded-xl text-xs font-medium flex items-start gap-2.5">
+                    <Lock className="h-4 w-4 text-orange-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-extrabold text-orange-900 block mb-0.5">Account Login Required</span>
+                      {authNotice}
+                    </div>
+                  </div>
+                )}
 
                 {authSuccessMsg && (
                   <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold flex items-center gap-2">

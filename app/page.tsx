@@ -33,6 +33,10 @@ export default function HomePage() {
   const [accountOpen, setAccountOpen] = useState(false);
   const [accountTab, setAccountTab] = useState<"orders" | "sell_requests" | "profile">("orders");
 
+  // Mandatory Login for Checkout state
+  const [pendingCheckout, setPendingCheckout] = useState(false);
+  const [authNotice, setAuthNotice] = useState<string | null>(null);
+
   // Product View Details State
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [productDetailsOpen, setProductDetailsOpen] = useState(false);
@@ -77,7 +81,23 @@ export default function HomePage() {
     setCartOpen(true);
   };
 
+  // Protected Checkout Handlers: Checkout is strictly prohibited without account login
+  const handleOpenCheckout = () => {
+    if (!currentUser) {
+      setAuthNotice(
+        "Please sign in or create an account to proceed to checkout. Login is mandatory to link your 1-year replacement warranty, track your Bluedart shipment, and receive your order confirmation email."
+      );
+      setCartOpen(false);
+      setProductDetailsOpen(false);
+      setPendingCheckout(true);
+      setAuthOpen(true);
+      return;
+    }
+    setCheckoutOpen(true);
+  };
+
   const handleBuyNow = (product: Product, quantity = 1) => {
+    // 1. Add item to cart so it is preserved
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
@@ -87,7 +107,29 @@ export default function HomePage() {
       }
       return [...prev, { product, quantity }];
     });
+    setProductDetailsOpen(false);
+
+    // 2. Gate check: If user not logged in, redirect to login modal with checkout intent
+    if (!currentUser) {
+      setAuthNotice(
+        `Please sign in or create an account to purchase "${product.name}". Login is mandatory to generate your 45-point warranty certificate and receive doorstep order tracking.`
+      );
+      setPendingCheckout(true);
+      setAuthOpen(true);
+      return;
+    }
+
     setCheckoutOpen(true);
+  };
+
+  const handleAuthSuccess = (user: AuthUser) => {
+    setCurrentUser(user);
+    setAuthNotice(null);
+    // If user was attempting to checkout, seamlessly continue to CheckoutModal!
+    if (pendingCheckout) {
+      setPendingCheckout(false);
+      setCheckoutOpen(true);
+    }
   };
 
   const handleUpdateCartQty = (productId: string, delta: number) => {
@@ -182,7 +224,7 @@ export default function HomePage() {
         cart={cart}
         onUpdateCartQty={handleUpdateCartQty}
         onRemoveFromCart={handleRemoveFromCart}
-        onOpenCheckout={() => setCheckoutOpen(true)}
+        onOpenCheckout={handleOpenCheckout}
         wishlistOpen={wishlistOpen}
         onCloseWishlist={() => setWishlistOpen(false)}
         wishlist={wishlist}
@@ -190,14 +232,19 @@ export default function HomePage() {
         onRemoveWishlist={(id) => setWishlist((prev) => prev.filter((p) => p.id !== id))}
         onViewDetails={handleViewDetails}
         authOpen={authOpen}
-        onCloseAuth={() => setAuthOpen(false)}
-        onAuthSuccess={(user) => setCurrentUser(user)}
+        onCloseAuth={() => {
+          setAuthOpen(false);
+          setAuthNotice(null);
+          setPendingCheckout(false);
+        }}
+        onAuthSuccess={handleAuthSuccess}
         currentUser={currentUser}
+        authNotice={authNotice}
         valuationOpen={valuationOpen}
         onCloseValuation={() => setValuationOpen(false)}
       />
 
-      {/* 12. Checkout Modal with Doorstep Delivery & Payment */}
+      {/* 12. Checkout Modal with Doorstep Delivery, Login Gate & Email Dispatch */}
       <CheckoutModal
         isOpen={checkoutOpen}
         onClose={() => setCheckoutOpen(false)}
@@ -205,6 +252,10 @@ export default function HomePage() {
         currentUser={currentUser}
         onOrderPlaced={handleOrderPlaced}
         onClearCart={() => setCart([])}
+        onOpenAuth={() => {
+          setAuthNotice("Please sign in or create an account to complete your checkout and receive your invoice.");
+          setAuthOpen(true);
+        }}
       />
 
       {/* 13. My Account, Orders History & Sell Bookings Modal */}

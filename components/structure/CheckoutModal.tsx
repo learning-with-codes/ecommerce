@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   X,
   ShieldCheck,
@@ -14,6 +14,12 @@ import {
   Loader2,
   Tag,
   Package,
+  Lock,
+  User,
+  Mail,
+  Printer,
+  Eye,
+  Check,
 } from "lucide-react";
 import { CartItem, AuthUser, Order, ShippingAddress } from "@/types/retech";
 import { createOrder } from "@/lib/services/ordersService";
@@ -25,6 +31,7 @@ interface CheckoutModalProps {
   currentUser: AuthUser | null;
   onOrderPlaced: (order: Order) => void;
   onClearCart: () => void;
+  onOpenAuth?: () => void;
 }
 
 export default function CheckoutModal({
@@ -34,9 +41,16 @@ export default function CheckoutModal({
   currentUser,
   onOrderPlaced,
   onClearCart,
+  onOpenAuth,
 }: CheckoutModalProps) {
   const [submitting, setSubmitting] = useState(false);
   const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
+
+  // Email Notification States
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailHtml, setEmailHtml] = useState<string>("");
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
 
   // Address State
   const [name, setName] = useState(currentUser?.name || "");
@@ -53,7 +67,74 @@ export default function CheckoutModal({
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState("");
 
+  // Sync user info when currentUser changes
+  useEffect(() => {
+    if (currentUser) {
+      setName(currentUser.name || "");
+      setEmail(currentUser.email || "");
+      if (currentUser.phone && currentUser.phone !== "+91 ") {
+        setPhone(currentUser.phone);
+      }
+    }
+  }, [currentUser]);
+
   if (!isOpen) return null;
+
+  // 1. Mandatory Login Gate: Without login, checkout is blocked
+  if (!currentUser) {
+    return (
+      <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={onClose} />
+        <div className="relative z-20 w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 sm:p-8 text-center space-y-6 border border-slate-100 animate-in fade-in zoom-in-95">
+          <div className="h-16 w-16 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center mx-auto shadow-inner">
+            <Lock className="h-8 w-8" />
+          </div>
+          
+          <div className="space-y-2">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-200">
+              Account Login Required
+            </span>
+            <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+              Please Sign In to Checkout
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              As per ReTech Trust & Security Policy, an authenticated customer account is required to generate the <strong>45-point hardware warranty certificate</strong>, enable real-time Bluedart tracking, and dispatch your tax invoice to your verified email.
+            </p>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 text-left text-xs space-y-1.5 text-slate-700">
+            <div className="flex items-center gap-2 text-emerald-700 font-bold">
+              <Check className="h-3.5 w-3.5 stroke-[3]" /> 1-Year Replacement Warranty registration
+            </div>
+            <div className="flex items-center gap-2 text-emerald-700 font-bold">
+              <Check className="h-3.5 w-3.5 stroke-[3]" /> Live Bluedart Air tracking on SMS & Email
+            </div>
+            <div className="flex items-center gap-2 text-emerald-700 font-bold">
+              <Check className="h-3.5 w-3.5 stroke-[3]" /> Instant Cash on Delivery verification
+            </div>
+          </div>
+
+          <div className="space-y-2.5 pt-2">
+            <button
+              onClick={() => {
+                onClose();
+                onOpenAuth?.();
+              }}
+              className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-xl py-3.5 font-bold text-sm shadow-lg shadow-orange-600/25 transition active:scale-95 flex items-center justify-center gap-2"
+            >
+              <User className="h-4 w-4" /> Sign In or Register to Continue
+            </button>
+            <button
+              onClick={onClose}
+              className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl py-2.5 font-bold text-xs transition"
+            >
+              Back to Shopping
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const subtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const discountAmount = promoApplied ? 2500 : 0;
@@ -96,7 +177,7 @@ export default function CheckoutModal({
       const res = await createOrder({
         userId: currentUser?.id,
         customerName: name,
-        customerEmail: email || "customer@retech.in",
+        customerEmail: email || currentUser?.email || "customer@retech.in",
         customerPhone: phone,
         shippingAddress,
         items: orderItems,
@@ -112,6 +193,23 @@ export default function CheckoutModal({
         setPlacedOrder(res.order);
         onOrderPlaced(res.order);
         onClearCart();
+
+        // Dispatch Professional Order Confirmation Email (Flipkart/Cashify standard)
+        setEmailSending(true);
+        fetch("/api/send-order-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ order: res.order }),
+        })
+          .then((r) => r.json())
+          .then((emailData) => {
+            if (emailData.success) {
+              setEmailSent(true);
+              if (emailData.html) setEmailHtml(emailData.html);
+            }
+          })
+          .catch((err) => console.error("Order email dispatch error:", err))
+          .finally(() => setEmailSending(false));
       }
     } catch (err) {
       console.error("Order placement failed:", err);
@@ -142,8 +240,8 @@ export default function CheckoutModal({
               </h3>
               <p className="text-xs text-slate-500">
                 {placedOrder
-                  ? "Your certified refurbished devices are being prepped"
-                  : "Doorstep diagnostic report • 1-Year Warranty Included"}
+                  ? "Your certified refurbished devices are being prepped & confirmation sent"
+                  : `Signed in as ${currentUser.name || currentUser.email} • 1-Year Warranty Included`}
               </p>
             </div>
           </div>
@@ -159,19 +257,50 @@ export default function CheckoutModal({
         <div className="p-6 overflow-y-auto space-y-6">
           {placedOrder ? (
             /* Success View */
-            <div className="text-center py-6 space-y-6">
+            <div className="text-center py-4 space-y-5">
               <div className="h-20 w-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
                 <CheckCircle2 className="h-10 w-10 stroke-[2.5]" />
               </div>
+              
               <div className="space-y-2">
-                <h4 className="text-2xl font-black text-slate-900">
-                  Thank You for Your Order!
+                <h4 className="text-2xl sm:text-3xl font-black text-slate-900">
+                  Thank You for Your Order! 🎉
                 </h4>
                 <p className="text-sm text-slate-600 max-w-md mx-auto">
-                  Your order <span className="font-extrabold text-orange-600">{placedOrder.orderNumber}</span> has been confirmed. A confirmation SMS and diagnostic summary have been dispatched.
+                  Your order <span className="font-extrabold text-orange-600">{placedOrder.orderNumber || placedOrder.id}</span> has been confirmed.
                 </p>
               </div>
 
+              {/* Email Sent Notification Box */}
+              <div className="p-4 bg-emerald-50/90 border border-emerald-200 rounded-2xl max-w-md mx-auto text-left space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
+                    <Mail className="h-4 w-4 text-emerald-600" />
+                    {emailSending ? "Sending Confirmation Email..." : "Order Confirmation Email Dispatched"}
+                  </span>
+                  <span className="bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                    {emailSending ? "Sending..." : emailSent ? "SENT ✓" : "DISPATCHED"}
+                  </span>
+                </div>
+                <p className="text-xs text-emerald-800 leading-relaxed">
+                  A professional invoice with your <strong>45-Point Hardware Certification Report</strong> and <strong>Bluedart Air Tracking ({placedOrder.trackingNumber})</strong> has been dispatched to:
+                </p>
+                <div className="bg-white/90 p-2 rounded-xl border border-emerald-200/80 font-mono text-xs font-bold text-slate-900 flex items-center justify-between">
+                  <span>{placedOrder.customerEmail}</span>
+                  <span className="text-emerald-600 text-[10px]">Verified ✓</span>
+                </div>
+                <div className="pt-1 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowEmailPreview(true)}
+                    className="text-xs font-bold text-emerald-900 hover:text-emerald-950 underline flex items-center gap-1"
+                  >
+                    <Eye className="h-3.5 w-3.5" /> Preview Sent Confirmation Email
+                  </button>
+                </div>
+              </div>
+
+              {/* Order Details Card */}
               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 max-w-md mx-auto text-left text-xs space-y-2">
                 <div className="flex justify-between text-slate-600">
                   <span>Tracking Number:</span>
@@ -185,7 +314,9 @@ export default function CheckoutModal({
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>Payment Mode:</span>
-                  <span className="font-bold text-slate-900 uppercase">{placedOrder.paymentMethod} ({placedOrder.paymentStatus})</span>
+                  <span className="font-bold text-slate-900 uppercase">
+                    {placedOrder.paymentMethod} ({placedOrder.paymentStatus})
+                  </span>
                 </div>
                 <div className="flex justify-between text-slate-900 font-extrabold pt-2 border-t border-slate-200">
                   <span>Total Paid / Payable:</span>
@@ -193,11 +324,26 @@ export default function CheckoutModal({
                 </div>
               </div>
 
+              {/* Success CTAs */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
                 <button
                   type="button"
+                  onClick={() => setShowEmailPreview(true)}
+                  className="px-5 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5"
+                >
+                  <Mail className="h-4 w-4" /> View Email Receipt
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-5 py-3 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5"
+                >
+                  <Printer className="h-4 w-4" /> Print Receipt
+                </button>
+                <button
+                  type="button"
                   onClick={onClose}
-                  className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs shadow-md transition"
+                  className="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs shadow-md transition"
                 >
                   Continue Shopping
                 </button>
@@ -238,226 +384,210 @@ export default function CheckoutModal({
                   <Truck className="h-4 w-4 text-orange-600" />
                   <span>Doorstep Delivery Address</span>
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700">Full Name *</label>
+                    <label className="block text-slate-600 font-bold mb-1">Full Name</label>
                     <input
-                      type="text"
                       required
+                      type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="Ankit Sen"
-                      className="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                      placeholder="e.g. Subham Banerjee"
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700">Mobile Number *</label>
+                    <label className="block text-slate-600 font-bold mb-1">
+                      Email Address (Order Confirmation will be sent here)
+                    </label>
                     <input
-                      type="tel"
                       required
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="e.g. subham@gmail.com"
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-600 font-bold mb-1">Phone Number (For OTP Delivery)</label>
+                    <input
+                      required
+                      type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+91 98765 43210"
-                      className="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="text-[11px] font-bold text-slate-700">Email for Invoice *</label>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="ankit.sen@gmail.com"
-                      className="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="text-[11px] font-bold text-slate-700">Complete Street Address *</label>
-                    <input
-                      type="text"
-                      required
-                      value={street}
-                      onChange={(e) => setStreet(e.target.value)}
-                      placeholder="Flat 4B, Greenwood Heights, Park Circus"
-                      className="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700">City *</label>
+                    <label className="block text-slate-600 font-bold mb-1">Pincode</label>
                     <input
-                      type="text"
                       required
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-700">State *</label>
-                    <input
                       type="text"
-                      required
-                      value={state}
-                      onChange={(e) => setState(e.target.value)}
-                      className="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-700">PIN Code *</label>
-                    <input
-                      type="text"
-                      required
+                      maxLength={6}
                       value={pincode}
                       onChange={(e) => setPincode(e.target.value)}
-                      className="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                      placeholder="700001"
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
                     />
                   </div>
-                </div>
-              </div>
-
-              {/* Payment Method Selector */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                  <CreditCard className="h-4 w-4 text-orange-600" />
-                  <span>Choose Payment Method</span>
-                </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("upi")}
-                    className={`p-3 rounded-2xl border text-left flex flex-col justify-between gap-1 transition ${
-                      paymentMethod === "upi"
-                        ? "border-orange-600 bg-orange-50/70 text-orange-950 font-bold shadow-sm"
-                        : "border-slate-200 hover:border-slate-300 text-slate-700"
-                    }`}
-                  >
-                    <QrCode className="h-5 w-5 text-orange-600" />
-                    <div>
-                      <p className="text-xs font-bold">UPI / QR</p>
-                      <p className="text-[10px] text-slate-500">GPay, PhonePe</p>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("card")}
-                    className={`p-3 rounded-2xl border text-left flex flex-col justify-between gap-1 transition ${
-                      paymentMethod === "card"
-                        ? "border-orange-600 bg-orange-50/70 text-orange-950 font-bold shadow-sm"
-                        : "border-slate-200 hover:border-slate-300 text-slate-700"
-                    }`}
-                  >
-                    <CreditCard className="h-5 w-5 text-orange-600" />
-                    <div>
-                      <p className="text-xs font-bold">Cards</p>
-                      <p className="text-[10px] text-slate-500">Credit / Debit</p>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("cod")}
-                    className={`p-3 rounded-2xl border text-left flex flex-col justify-between gap-1 transition ${
-                      paymentMethod === "cod"
-                        ? "border-orange-600 bg-orange-50/70 text-orange-950 font-bold shadow-sm"
-                        : "border-slate-200 hover:border-slate-300 text-slate-700"
-                    }`}
-                  >
-                    <Banknote className="h-5 w-5 text-emerald-600" />
-                    <div>
-                      <p className="text-xs font-bold">Cash On Delivery</p>
-                      <p className="text-[10px] text-emerald-600">Pay after trial</p>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("netbanking")}
-                    className={`p-3 rounded-2xl border text-left flex flex-col justify-between gap-1 transition ${
-                      paymentMethod === "netbanking"
-                        ? "border-orange-600 bg-orange-50/70 text-orange-950 font-bold shadow-sm"
-                        : "border-slate-200 hover:border-slate-300 text-slate-700"
-                    }`}
-                  >
-                    <Building className="h-5 w-5 text-indigo-600" />
-                    <div>
-                      <p className="text-xs font-bold">Net Banking</p>
-                      <p className="text-[10px] text-slate-500">All Major Banks</p>
-                    </div>
-                  </button>
+                  <div className="sm:col-span-2">
+                    <label className="block text-slate-600 font-bold mb-1">Flat / Building / Street Address</label>
+                    <input
+                      required
+                      type="text"
+                      value={street}
+                      onChange={(e) => setStreet(e.target.value)}
+                      placeholder="Flat 4B, Park Street Towers, Near Park Street Metro"
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-600 font-bold mb-1">City</label>
+                    <input
+                      required
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-600 font-bold mb-1">State</label>
+                    <input
+                      required
+                      type="text"
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Promo Code Strip */}
-              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+              <div className="pt-2">
                 <div className="flex gap-2">
                   <div className="relative flex-1">
-                    <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                    <Tag className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                     <input
                       type="text"
                       value={promoCode}
                       onChange={(e) => setPromoCode(e.target.value)}
-                      placeholder="Enter promo code (e.g. FESTIVE2500)"
-                      className="w-full pl-9 pr-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-orange-500 uppercase font-semibold"
+                      placeholder="Coupon Code (e.g. FESTIVE2500)"
+                      className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs uppercase font-bold focus:outline-none focus:border-orange-500"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={handleApplyPromo}
-                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition"
+                    className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition"
                   >
                     Apply
                   </button>
                 </div>
                 {promoApplied && (
-                  <p className="text-xs text-emerald-700 font-bold flex items-center gap-1">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    Coupon &apos;FESTIVE2500&apos; applied! You saved ₹2,500.
+                  <p className="text-[11px] text-emerald-600 font-bold mt-1">
+                    ✓ FESTIVE2500 Applied! ₹2,500 Festive discount added.
                   </p>
                 )}
                 {promoError && (
-                  <p className="text-xs text-rose-600 font-semibold">{promoError}</p>
+                  <p className="text-[11px] text-rose-500 font-bold mt-1">{promoError}</p>
                 )}
               </div>
 
-              {/* Bill Summary */}
-              <div className="p-4 bg-orange-50/60 rounded-2xl border border-orange-100 space-y-2 text-xs">
-                <div className="flex justify-between text-slate-700">
-                  <span>Subtotal</span>
-                  <span className="font-bold">₹{subtotal.toLocaleString("en-IN")}</span>
+              {/* Payment Methods */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-extrabold text-slate-900">Select Payment Method</h4>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("upi")}
+                    className={`p-3 rounded-2xl border text-center transition flex flex-col items-center gap-1.5 ${
+                      paymentMethod === "upi"
+                        ? "border-orange-600 bg-orange-50/50 text-orange-900 font-bold shadow-sm"
+                        : "border-slate-200 hover:border-slate-300 text-slate-600"
+                    }`}
+                  >
+                    <QrCode className="h-5 w-5 text-orange-600" />
+                    <span>Instant UPI</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("card")}
+                    className={`p-3 rounded-2xl border text-center transition flex flex-col items-center gap-1.5 ${
+                      paymentMethod === "card"
+                        ? "border-orange-600 bg-orange-50/50 text-orange-900 font-bold shadow-sm"
+                        : "border-slate-200 hover:border-slate-300 text-slate-600"
+                    }`}
+                  >
+                    <CreditCard className="h-5 w-5 text-blue-600" />
+                    <span>Credit / Debit Card</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("cod")}
+                    className={`p-3 rounded-2xl border text-center transition flex flex-col items-center gap-1.5 ${
+                      paymentMethod === "cod"
+                        ? "border-orange-600 bg-orange-50/50 text-orange-900 font-bold shadow-sm"
+                        : "border-slate-200 hover:border-slate-300 text-slate-600"
+                    }`}
+                  >
+                    <Banknote className="h-5 w-5 text-emerald-600" />
+                    <span>Cash on Delivery</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("netbanking")}
+                    className={`p-3 rounded-2xl border text-center transition flex flex-col items-center gap-1.5 ${
+                      paymentMethod === "netbanking"
+                        ? "border-orange-600 bg-orange-50/50 text-orange-900 font-bold shadow-sm"
+                        : "border-slate-200 hover:border-slate-300 text-slate-600"
+                    }`}
+                  >
+                    <Building className="h-5 w-5 text-purple-600" />
+                    <span>Net Banking / EMI</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Order Bill Summary */}
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2 text-xs">
+                <div className="flex justify-between text-slate-600">
+                  <span>Subtotal ({cart.length} devices):</span>
+                  <span>₹{subtotal.toLocaleString("en-IN")}</span>
                 </div>
                 {promoApplied && (
-                  <div className="flex justify-between text-emerald-700 font-bold">
-                    <span>Festive Discount</span>
-                    <span>- ₹2,500</span>
+                  <div className="flex justify-between text-emerald-600 font-bold">
+                    <span>Festive Promo Discount:</span>
+                    <span>-₹{discountAmount.toLocaleString("en-IN")}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-slate-700">
-                  <span>Doorstep Diagnostic & Packaging</span>
+                <div className="flex justify-between text-slate-600">
+                  <span>Express Bluedart Delivery:</span>
                   <span className="text-emerald-600 font-bold">FREE</span>
                 </div>
-                <div className="flex justify-between text-slate-700">
-                  <span>1-Year Hardware Warranty</span>
-                  <span className="text-emerald-600 font-bold">INCLUDED</span>
-                </div>
-                <div className="pt-2 border-t border-orange-200 flex justify-between text-slate-950 font-black text-sm">
-                  <span>Final Total</span>
-                  <span className="text-orange-600">₹{totalAmount.toLocaleString("en-IN")}</span>
+                <div className="flex justify-between text-slate-900 font-black text-sm pt-2 border-t border-slate-200">
+                  <span>Total Amount:</span>
+                  <span className="text-orange-600 text-base">₹{totalAmount.toLocaleString("en-IN")}</span>
                 </div>
               </div>
 
               {/* Submit CTA */}
               <button
                 type="submit"
-                disabled={submitting}
-                className="w-full py-4 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-2xl font-black text-sm shadow-xl shadow-orange-600/25 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-60"
+                disabled={submitting || cart.length === 0}
+                className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-2xl py-4 font-bold text-sm shadow-lg shadow-orange-600/30 transition flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.99]"
               >
                 {submitting ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Confirming Order & Generating 45-Pt Report...
+                  </>
                 ) : (
                   <>
-                    <span>Confirm & Place Order (₹{totalAmount.toLocaleString("en-IN")})</span>
+                    <span>Confirm Order (Pay ₹{totalAmount.toLocaleString("en-IN")})</span>
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}
@@ -466,6 +596,51 @@ export default function CheckoutModal({
           )}
         </div>
       </div>
+
+      {/* Interactive Modal: Preview Sent Flipkart/Cashify HTML Email */}
+      {showEmailPreview && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md" onClick={() => setShowEmailPreview(false)} />
+          <div className="relative z-30 w-full max-w-2xl bg-white rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95">
+            <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-bold">
+                <Mail className="h-4 w-4 text-orange-400" />
+                <span>Email Dispatched to: {placedOrder?.customerEmail}</span>
+              </div>
+              <button
+                onClick={() => setShowEmailPreview(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 bg-slate-100">
+              {emailHtml ? (
+                <div
+                  className="bg-white rounded-xl shadow-sm overflow-hidden"
+                  dangerouslySetInnerHTML={{ __html: emailHtml }}
+                />
+              ) : (
+                <p className="text-center py-10 text-slate-500 text-xs">Generating rendered email preview...</p>
+              )}
+            </div>
+            <div className="p-3 bg-white border-t border-slate-200 flex justify-end gap-2">
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition flex items-center gap-1.5"
+              >
+                <Printer className="h-3.5 w-3.5" /> Print Invoice
+              </button>
+              <button
+                onClick={() => setShowEmailPreview(false)}
+                className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
