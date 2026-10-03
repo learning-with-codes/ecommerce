@@ -69,8 +69,27 @@ CREATE TABLE IF NOT EXISTS public.orders (
   payment_status TEXT NOT NULL DEFAULT 'pending' CHECK (payment_status IN ('pending', 'paid', 'failed')),
   order_status TEXT NOT NULL DEFAULT 'confirmed' CHECK (order_status IN ('confirmed', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled')),
   tracking_number TEXT,
+  idempotency_key TEXT UNIQUE,
+  email_status TEXT DEFAULT 'pending' CHECK (email_status IN ('pending', 'sent', 'failed')),
+  email_sent_at TIMESTAMPTZ,
+  email_error TEXT,
   created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 5b. Order Items Breakdown Table
+CREATE TABLE IF NOT EXISTS public.order_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id UUID REFERENCES public.orders(id) ON DELETE CASCADE,
+  order_number TEXT NOT NULL,
+  product_id TEXT REFERENCES public.products(id) ON DELETE SET NULL,
+  product_name TEXT NOT NULL,
+  product_image TEXT,
+  price NUMERIC(12, 2) NOT NULL,
+  quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity > 0),
+  condition TEXT,
+  warranty TEXT,
+  created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
 -- 6. Persistent Shopping Cart Table
@@ -160,6 +179,17 @@ CREATE POLICY "Users can manage their own wishlist" ON public.wishlist_items FOR
 -- Orders Policies
 CREATE POLICY "Users can view their own orders" ON public.orders FOR SELECT USING (auth.uid() = user_id OR user_id IS NULL);
 CREATE POLICY "Anyone can create an order" ON public.orders FOR INSERT WITH CHECK (true);
+
+-- Order Items Policies
+ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view their own order items" ON public.order_items FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM public.orders
+    WHERE orders.id = order_items.order_id
+    AND (orders.user_id = auth.uid() OR orders.user_id IS NULL)
+  )
+);
+CREATE POLICY "Anyone can insert order items" ON public.order_items FOR INSERT WITH CHECK (true);
 
 -- Sell Requests Policies
 CREATE POLICY "Users can view their own sell requests" ON public.sell_requests FOR SELECT USING (auth.uid() = user_id OR user_id IS NULL);

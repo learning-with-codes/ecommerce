@@ -20,6 +20,7 @@ import {
   Printer,
   Eye,
   Check,
+  RefreshCcw,
 } from "lucide-react";
 import { CartItem, AuthUser, Order, ShippingAddress } from "@/types/retech";
 import { createOrder } from "@/lib/services/ordersService";
@@ -170,6 +171,30 @@ export default function CheckoutModal({
   const shippingFee = 0; // Free express delivery
   const totalAmount = Math.max(0, subtotal - discountAmount + shippingFee);
 
+  // Retry email handler in case email provider failed initially
+  const handleRetryEmail = async () => {
+    if (!placedOrder) return;
+    setEmailSending(true);
+    try {
+      const res = await fetch("/api/orders/retry-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: placedOrder.orderNumber || placedOrder.id,
+          order: placedOrder,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEmailSent(true);
+      }
+    } catch (e) {
+      console.error("Retry email failed:", e);
+    } finally {
+      setEmailSending(false);
+    }
+  };
+
   const handleApplyPromo = () => {
     if (promoCode.trim().toUpperCase() === "FESTIVE2500") {
       setPromoApplied(true);
@@ -203,6 +228,7 @@ export default function CheckoutModal({
     }));
 
     try {
+      const idempotencyKey = `idem_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
       const res = await createOrder({
         userId: currentUser?.id,
         customerName: name,
@@ -216,29 +242,16 @@ export default function CheckoutModal({
         totalAmount,
         paymentMethod,
         paymentStatus: paymentMethod === "cod" ? "pending" : "paid",
+        promoCode: promoApplied ? promoCode : undefined,
+        idempotencyKey,
       });
 
       if (res.order) {
         setPlacedOrder(res.order);
         onOrderPlaced(res.order);
         onClearCart();
-
-        // Dispatch Professional Order Confirmation Email (Flipkart/Cashify standard)
-        setEmailSending(true);
-        fetch("/api/send-order-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ order: res.order }),
-        })
-          .then((r) => r.json())
-          .then((emailData) => {
-            if (emailData.success) {
-              setEmailSent(true);
-              if (emailData.html) setEmailHtml(emailData.html);
-            }
-          })
-          .catch((err) => console.error("Order email dispatch error:", err))
-          .finally(() => setEmailSending(false));
+        setEmailSent(Boolean(res.emailSent));
+        if (res.emailHtml) setEmailHtml(res.emailHtml);
       }
     } catch (err) {
       console.error("Order placement failed:", err);
@@ -318,7 +331,7 @@ export default function CheckoutModal({
                   <span>{placedOrder.customerEmail}</span>
                   <span className="text-emerald-600 text-[10px]">Verified ✓</span>
                 </div>
-                <div className="pt-1 flex items-center gap-2">
+                <div className="pt-1 flex items-center justify-between gap-2">
                   <button
                     type="button"
                     onClick={() => setShowEmailPreview(true)}
@@ -326,6 +339,17 @@ export default function CheckoutModal({
                   >
                     <Eye className="h-3.5 w-3.5" /> Preview Sent Confirmation Email
                   </button>
+                  {!emailSent && (
+                    <button
+                      type="button"
+                      onClick={handleRetryEmail}
+                      disabled={emailSending}
+                      className="text-xs font-bold text-orange-700 hover:text-orange-800 bg-orange-100 hover:bg-orange-200 px-2 py-1 rounded-lg transition flex items-center gap-1"
+                    >
+                      <RefreshCcw className={`h-3 w-3 ${emailSending ? "animate-spin" : ""}`} />
+                      Retry Email
+                    </button>
+                  )}
                 </div>
               </div>
 
