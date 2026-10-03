@@ -6,13 +6,14 @@ const LOCAL_STORAGE_ORDERS_KEY = "retech_user_orders";
 export async function createOrder(
   orderInput: Omit<Order, "id" | "orderNumber" | "createdAt" | "orderStatus" | "trackingNumber">
 ): Promise<{ order: Order | null; error?: string }> {
-  const orderNumber = `RT-${Math.floor(100000 + Math.random() * 900000)}`;
-  const trackingNumber = `DEL-${Date.now().toString().slice(-8)}`;
+  // Flipkart style unique order ID: OD + timestamp + 4 random digits
+  const orderNumber = `OD${Date.now()}${Math.floor(1000 + Math.random() * 9000)}`;
+  const trackingNumber = `BD${Date.now().toString().slice(-8)}${Math.floor(10 + Math.random() * 90)}IN`;
   const now = new Date().toISOString();
 
   const newOrder: Order = {
     ...orderInput,
-    id: `ord_${Date.now()}`,
+    id: orderNumber,
     orderNumber,
     trackingNumber,
     orderStatus: "confirmed",

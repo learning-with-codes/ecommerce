@@ -32,6 +32,7 @@ interface CheckoutModalProps {
   onOrderPlaced: (order: Order) => void;
   onClearCart: () => void;
   onOpenAuth?: () => void;
+  onOpenAccount?: (tab?: "orders" | "sell_requests" | "profile") => void;
 }
 
 export default function CheckoutModal({
@@ -42,6 +43,7 @@ export default function CheckoutModal({
   onOrderPlaced,
   onClearCart,
   onOpenAuth,
+  onOpenAccount,
 }: CheckoutModalProps) {
   const [submitting, setSubmitting] = useState(false);
   const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
@@ -66,6 +68,33 @@ export default function CheckoutModal({
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState("");
+
+  // Clean reset function so subsequent purchases of other devices work instantly
+  const handleCloseAndReset = () => {
+    setPlacedOrder(null);
+    setEmailSending(false);
+    setEmailSent(false);
+    setEmailHtml("");
+    setShowEmailPreview(false);
+    setSubmitting(false);
+    setPromoApplied(false);
+    setPromoCode("");
+    onClose();
+  };
+
+  // Reset order state whenever the modal is freshly opened
+  useEffect(() => {
+    if (isOpen) {
+      setPlacedOrder(null);
+      setEmailSending(false);
+      setEmailSent(false);
+      setEmailHtml("");
+      setShowEmailPreview(false);
+      setSubmitting(false);
+      setPromoApplied(false);
+      setPromoCode("");
+    }
+  }, [isOpen]);
 
   // Sync user info when currentUser changes
   useEffect(() => {
@@ -221,7 +250,7 @@ export default function CheckoutModal({
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={handleCloseAndReset} />
 
       {/* Modal Dialog */}
       <div
@@ -240,13 +269,13 @@ export default function CheckoutModal({
               </h3>
               <p className="text-xs text-slate-500">
                 {placedOrder
-                  ? "Your certified refurbished devices are being prepped & confirmation sent"
+                  ? `Order #${placedOrder.orderNumber || placedOrder.id} • Real-Time Confirmation Dispatched`
                   : `Signed in as ${currentUser.name || currentUser.email} • 1-Year Warranty Included`}
               </p>
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleCloseAndReset}
             className="p-2 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition"
           >
             <X className="h-5 w-5" />
@@ -325,27 +354,39 @@ export default function CheckoutModal({
               </div>
 
               {/* Success CTAs */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+              <div className="flex flex-wrap gap-2.5 justify-center pt-2">
                 <button
                   type="button"
                   onClick={() => setShowEmailPreview(true)}
-                  className="px-5 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5"
+                  className="px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5 active:scale-95"
                 >
                   <Mail className="h-4 w-4" /> View Email Receipt
                 </button>
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="px-5 py-3 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5"
+                  className="px-4 py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5"
                 >
                   <Printer className="h-4 w-4" /> Print Receipt
                 </button>
+                {onOpenAccount && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleCloseAndReset();
+                      onOpenAccount("orders");
+                    }}
+                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5"
+                  >
+                    <Package className="h-4 w-4 text-orange-400" /> My Orders ({placedOrder.orderNumber || placedOrder.id})
+                  </button>
+                )}
                 <button
                   type="button"
-                  onClick={onClose}
-                  className="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs shadow-md transition"
+                  onClick={handleCloseAndReset}
+                  className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5 active:scale-95"
                 >
-                  Continue Shopping
+                  <span>Buy Another Product</span>
                 </button>
               </div>
             </div>

@@ -199,12 +199,14 @@ export default function HomePage() {
           onToggleWishlist={handleToggleWishlist}
           onAddToCart={handleAddToCart}
           onViewDetails={handleViewDetails}
+          onBuyNow={handleBuyNow}
         />
 
         {/* 7. Certified Refurbished Marketplace */}
         <RefurbishedSection
           onAddToCart={handleAddToCart}
           onViewDetails={handleViewDetails}
+          onBuyNow={handleBuyNow}
         />
 
         {/* 8. Instant Cash Sell Valuation Calculator */}
@@ -256,6 +258,7 @@ export default function HomePage() {
           setAuthNotice("Please sign in or create an account to complete your checkout and receive your invoice.");
           setAuthOpen(true);
         }}
+        onOpenAccount={handleOpenAccount}
       />
 
       {/* 13. My Account, Orders History & Sell Bookings Modal */}

@@ -1,16 +1,17 @@
 "use client";
 
 import React from "react";
-import { Sparkles, CheckCircle2, ShieldCheck, Award, Eye, ShoppingBag } from "lucide-react";
+import { Sparkles, CheckCircle2, ShieldCheck, Award, Eye, ShoppingBag, Zap } from "lucide-react";
 import { PRODUCTS } from "@/data/retechData";
 import { Product } from "@/types/retech";
 
 interface RefurbishedSectionProps {
   onAddToCart: (p: Product) => void;
   onViewDetails?: (p: Product) => void;
+  onBuyNow?: (p: Product) => void;
 }
 
-export default function RefurbishedSection({ onAddToCart, onViewDetails }: RefurbishedSectionProps) {
+export default function RefurbishedSection({ onAddToCart, onViewDetails, onBuyNow }: RefurbishedSectionProps) {
   const refurbishedItems = PRODUCTS.filter((p) => p.condition.includes("Refurbished"));
 
   return (
@@ -107,7 +108,7 @@ export default function RefurbishedSection({ onAddToCart, onViewDetails }: Refur
                   <button
                     type="button"
                     onClick={() => onViewDetails?.(product)}
-                    className="p-2.5 rounded-xl border border-slate-200 text-slate-700 hover:text-orange-600 hover:border-orange-300 hover:bg-orange-50/50 transition text-xs font-bold"
+                    className="p-2 rounded-xl border border-slate-200 text-slate-700 hover:text-orange-600 hover:border-orange-300 hover:bg-orange-50/50 transition text-xs font-bold"
                     title="Inspect full diagnostics & specs"
                   >
                     <Eye className="h-4 w-4" />
@@ -115,9 +116,18 @@ export default function RefurbishedSection({ onAddToCart, onViewDetails }: Refur
                   <button
                     type="button"
                     onClick={() => onAddToCart(product)}
-                    className="bg-slate-900 hover:bg-orange-600 text-white rounded-xl font-bold text-xs px-3.5 py-2.5 transition flex items-center gap-1.5 active:scale-95"
+                    className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs px-2.5 py-2 transition flex items-center gap-1 active:scale-95"
+                    title="Add item to cart"
                   >
-                    <ShoppingBag className="h-4 w-4" /> Add
+                    <ShoppingBag className="h-3.5 w-3.5" /> Add
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onBuyNow?.(product)}
+                    className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-xl font-black text-xs px-3 py-2 transition flex items-center gap-1 shadow-md shadow-orange-600/25 active:scale-95"
+                    title="Instant Checkout"
+                  >
+                    <Zap className="h-3.5 w-3.5 fill-white" /> Buy
                   </button>
                 </div>
               </div>

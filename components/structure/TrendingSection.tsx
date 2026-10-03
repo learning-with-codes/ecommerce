@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Flame, Heart, ShieldCheck, ShoppingBag, Eye } from "lucide-react";
+import { Flame, Heart, ShieldCheck, ShoppingBag, Eye, Zap } from "lucide-react";
 import { PRODUCTS } from "@/data/retechData";
 import { Product } from "@/types/retech";
 
@@ -12,6 +12,7 @@ interface TrendingSectionProps {
   onToggleWishlist: (p: Product) => void;
   onAddToCart: (p: Product) => void;
   onViewDetails?: (p: Product) => void;
+  onBuyNow?: (p: Product) => void;
 }
 
 export default function TrendingSection({
@@ -21,6 +22,7 @@ export default function TrendingSection({
   onToggleWishlist,
   onAddToCart,
   onViewDetails,
+  onBuyNow,
 }: TrendingSectionProps) {
   const filteredProducts = activeCategoryTab === "all"
     ? PRODUCTS
@@ -133,7 +135,7 @@ export default function TrendingSection({
                     <button
                       type="button"
                       onClick={() => onViewDetails?.(product)}
-                      className="p-2.5 rounded-xl border border-slate-200 text-slate-700 hover:text-orange-600 hover:border-orange-300 hover:bg-orange-50/50 transition text-xs font-bold"
+                      className="p-2 rounded-xl border border-slate-200 text-slate-700 hover:text-orange-600 hover:border-orange-300 hover:bg-orange-50/50 transition text-xs font-bold"
                       title="Inspect full specs & diagnostics"
                     >
                       <Eye className="h-4 w-4" />
@@ -141,9 +143,18 @@ export default function TrendingSection({
                     <button
                       type="button"
                       onClick={() => onAddToCart(product)}
-                      className="inline-flex items-center bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold px-3.5 py-2.5 shadow-md shadow-orange-600/20 transition active:scale-95"
+                      className="inline-flex items-center bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold px-2.5 py-2 shadow-sm transition active:scale-95"
+                      title="Add item to cart"
                     >
-                      <ShoppingBag className="h-4 w-4 mr-1.5" /> Add
+                      <ShoppingBag className="h-3.5 w-3.5 mr-1" /> Add
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onBuyNow?.(product)}
+                      className="inline-flex items-center bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-xl text-xs font-black px-3 py-2 shadow-md shadow-orange-600/25 transition active:scale-95"
+                      title="Instant Checkout"
+                    >
+                      <Zap className="h-3.5 w-3.5 fill-white mr-1" /> Buy
                     </button>
                   </div>
                 </div>
