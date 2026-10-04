@@ -309,7 +309,10 @@ export default function HomePage() {
 
       <main className="flex-1">
         {/* 3. Hero Carousel Banner */}
-        <HeroCarousel onOpenValuation={() => setValuationOpen(true)} />
+        <HeroCarousel
+          onOpenValuation={() => setValuationOpen(true)}
+          onViewDetails={handleViewDetails}
+        />
 
         {/* 4. Trust Badges & Guarantee Strip */}
         <FeatureStrip />

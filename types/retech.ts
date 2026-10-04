@@ -60,6 +60,7 @@ export interface ReviewItem {
 
 export interface HeroSlide {
   id: string;
+  productId?: string;
   badge: string;
   title: string;
   highlight: string;

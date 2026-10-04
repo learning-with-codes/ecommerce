@@ -3,6 +3,7 @@ import { HeroSlide, CategoryItem, Product, ReviewItem } from "@/types/retech";
 export const HERO_SLIDES: HeroSlide[] = [
   {
     id: "slide-1",
+    productId: "p1",
     badge: "Big ReTech Electronics Festival",
     title: "Upgrade to Flagship Power.",
     highlight: "Pay 40% Less.",
@@ -19,6 +20,7 @@ export const HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: "slide-2",
+    productId: "p2",
     badge: "Mega Exchange & Sell Bonus",
     title: "Old Laptop or Phone?",
     highlight: "Instant ₹ Cashout.",
@@ -26,7 +28,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     ctaText: "Check Sell Price",
     ctaSecondaryText: "How Selling Works",
     image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1000&auto=format&fit=crop&q=80",
-    deviceTag: "MacBook Air M2 16GB / 512GB",
+    deviceTag: "MacBook Air 15\" M3 (16GB / 512GB)",
     price: "₹82,499",
     originalPrice: "₹1,19,900",
     discountTag: "₹37,400 Off Retail",
@@ -35,6 +37,7 @@ export const HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: "slide-3",
+    productId: "p4",
     badge: "Audiophile & Gaming Carnival",
     title: "Sony ANC & PS5 Slim.",
     highlight: "Unbeatable Deals.",
