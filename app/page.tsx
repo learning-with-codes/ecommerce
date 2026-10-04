@@ -18,6 +18,13 @@ import ProductDetailsModal from "@/components/structure/ProductDetailsModal";
 
 import { Product, CartItem, AuthUser } from "@/types/retech";
 import { getCurrentUser, logoutUser } from "@/lib/auth/authService";
+import {
+  fetchUserCart,
+  syncUserCart,
+  fetchUserWishlist,
+  syncUserWishlist,
+  purgeGuestStorage,
+} from "@/lib/services/cartWishlistService";
 
 export default function HomePage() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -42,15 +49,38 @@ export default function HomePage() {
   const [productDetailsOpen, setProductDetailsOpen] = useState(false);
 
   useEffect(() => {
-    // Check active login state on mount
-    getCurrentUser().then((user) => {
-      if (user) setCurrentUser(user);
+    // Purge any stale unauthenticated storage so guests always start with empty cart on refresh
+    purgeGuestStorage();
+
+    getCurrentUser().then(async (user) => {
+      if (user) {
+        setCurrentUser(user);
+        try {
+          // Permanently load authenticated user's cart & wishlist from backend
+          const [userCart, userWishlist] = await Promise.all([
+            fetchUserCart(user.id),
+            fetchUserWishlist(user.id),
+          ]);
+          setCart(userCart);
+          setWishlist(userWishlist);
+        } catch (err) {
+          console.warn("Failed to load user cart/wishlist:", err);
+        }
+      } else {
+        // Guest user: strictly in-memory; refresh will reset cart & wishlist to []
+        setCart([]);
+        setWishlist([]);
+      }
     });
   }, []);
 
   const handleSignOut = async () => {
     await logoutUser();
     setCurrentUser(null);
+    // Immediately clear in-memory state for unauthenticated visitor
+    setCart([]);
+    setWishlist([]);
+    purgeGuestStorage();
   };
 
   const handleOpenAccount = (tab: "orders" | "sell_requests" | "profile" = "orders") => {
@@ -59,8 +89,11 @@ export default function HomePage() {
   };
 
   const handleOrderPlaced = () => {
-    // Keep cart cleared
+    // Keep cart cleared upon order placement
     setCart([]);
+    if (currentUser) {
+      syncUserCart(currentUser.id, []);
+    }
   };
 
   const handleViewDetails = (product: Product) => {
@@ -71,12 +104,22 @@ export default function HomePage() {
   const handleAddToCart = (product: Product, quantity = 1) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
+      let nextCart: CartItem[];
       if (existing) {
-        return prev.map((item) =>
+        nextCart = prev.map((item) =>
           item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
         );
+      } else {
+        nextCart = [...prev, { product, quantity }];
       }
-      return [...prev, { product, quantity }];
+
+      // If logged in: permanently save to backend!
+      // If guest (login chara): DO NOT persist; will clear upon refresh!
+      if (currentUser) {
+        syncUserCart(currentUser.id, nextCart);
+      }
+
+      return nextCart;
     });
     setCartOpen(true);
   };
@@ -100,12 +143,20 @@ export default function HomePage() {
     // 1. Add item to cart so it is preserved
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
+      let nextCart: CartItem[];
       if (existing) {
-        return prev.map((item) =>
+        nextCart = prev.map((item) =>
           item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
         );
+      } else {
+        nextCart = [...prev, { product, quantity }];
       }
-      return [...prev, { product, quantity }];
+
+      if (currentUser) {
+        syncUserCart(currentUser.id, nextCart);
+      }
+
+      return nextCart;
     });
     setProductDetailsOpen(false);
 
@@ -122,9 +173,51 @@ export default function HomePage() {
     setCheckoutOpen(true);
   };
 
-  const handleAuthSuccess = (user: AuthUser) => {
+  const handleAuthSuccess = async (user: AuthUser) => {
     setCurrentUser(user);
     setAuthNotice(null);
+
+    try {
+      // Fetch user's persistent backend cart & wishlist
+      const [backendCart, backendWishlist] = await Promise.all([
+        fetchUserCart(user.id),
+        fetchUserWishlist(user.id),
+      ]);
+
+      // Merge transient guest items added in current session before login
+      const mergedCart = [...backendCart];
+      if (cart.length > 0) {
+        for (const guestItem of cart) {
+          const existingIdx = mergedCart.findIndex((c) => c.product.id === guestItem.product.id);
+          if (existingIdx >= 0) {
+            mergedCart[existingIdx].quantity += guestItem.quantity;
+          } else {
+            mergedCart.push(guestItem);
+          }
+        }
+      }
+
+      const mergedWishlist = [...backendWishlist];
+      if (wishlist.length > 0) {
+        for (const guestWish of wishlist) {
+          if (!mergedWishlist.some((w) => w.id === guestWish.id)) {
+            mergedWishlist.push(guestWish);
+          }
+        }
+      }
+
+      setCart(mergedCart);
+      setWishlist(mergedWishlist);
+
+      // Permanently sync to backend for this logged-in user
+      await Promise.all([
+        syncUserCart(user.id, mergedCart),
+        syncUserWishlist(user.id, mergedWishlist),
+      ]);
+    } catch (err) {
+      console.warn("Auth sync error:", err);
+    }
+
     // If user was attempting to checkout, seamlessly continue to CheckoutModal!
     if (pendingCheckout) {
       setPendingCheckout(false);
@@ -133,8 +226,8 @@ export default function HomePage() {
   };
 
   const handleUpdateCartQty = (productId: string, delta: number) => {
-    setCart((prev) =>
-      prev
+    setCart((prev) => {
+      const nextCart = prev
         .map((item) => {
           if (item.product.id === productId) {
             const newQty = item.quantity + delta;
@@ -142,21 +235,57 @@ export default function HomePage() {
           }
           return item;
         })
-        .filter(Boolean) as CartItem[]
-    );
+        .filter(Boolean) as CartItem[];
+
+      if (currentUser) {
+        syncUserCart(currentUser.id, nextCart);
+      }
+
+      return nextCart;
+    });
   };
 
   const handleRemoveFromCart = (productId: string) => {
-    setCart((prev) => prev.filter((item) => item.product.id !== productId));
+    setCart((prev) => {
+      const nextCart = prev.filter((item) => item.product.id !== productId);
+      if (currentUser) {
+        syncUserCart(currentUser.id, nextCart);
+      }
+      return nextCart;
+    });
+  };
+
+  const handleClearCart = () => {
+    setCart([]);
+    if (currentUser) {
+      syncUserCart(currentUser.id, []);
+    }
+  };
+
+  const handleMoveToWishlist = (product: Product) => {
+    handleRemoveFromCart(product.id);
+    setWishlist((prev) => {
+      if (prev.some((p) => p.id === product.id)) return prev;
+      const nextWishlist = [...prev, product];
+      if (currentUser) {
+        syncUserWishlist(currentUser.id, nextWishlist);
+      }
+      return nextWishlist;
+    });
   };
 
   const handleToggleWishlist = (product: Product) => {
     setWishlist((prev) => {
       const exists = prev.some((p) => p.id === product.id);
-      if (exists) {
-        return prev.filter((p) => p.id !== product.id);
+      const nextWishlist = exists
+        ? prev.filter((p) => p.id !== product.id)
+        : [...prev, product];
+
+      if (currentUser) {
+        syncUserWishlist(currentUser.id, nextWishlist);
       }
-      return [...prev, product];
+
+      return nextWishlist;
     });
   };
 
@@ -227,11 +356,21 @@ export default function HomePage() {
         onUpdateCartQty={handleUpdateCartQty}
         onRemoveFromCart={handleRemoveFromCart}
         onOpenCheckout={handleOpenCheckout}
+        onClearCart={handleClearCart}
+        onMoveToWishlist={handleMoveToWishlist}
         wishlistOpen={wishlistOpen}
         onCloseWishlist={() => setWishlistOpen(false)}
         wishlist={wishlist}
         onAddToCart={handleAddToCart}
-        onRemoveWishlist={(id) => setWishlist((prev) => prev.filter((p) => p.id !== id))}
+        onRemoveWishlist={(id) => {
+          setWishlist((prev) => {
+            const nextList = prev.filter((p) => p.id !== id);
+            if (currentUser) {
+              syncUserWishlist(currentUser.id, nextList);
+            }
+            return nextList;
+          });
+        }}
         onViewDetails={handleViewDetails}
         authOpen={authOpen}
         onCloseAuth={() => {
@@ -239,6 +378,7 @@ export default function HomePage() {
           setAuthNotice(null);
           setPendingCheckout(false);
         }}
+        onOpenAuth={() => setAuthOpen(true)}
         onAuthSuccess={handleAuthSuccess}
         currentUser={currentUser}
         authNotice={authNotice}

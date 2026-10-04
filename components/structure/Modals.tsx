@@ -18,6 +18,11 @@ import {
   AlertCircle,
   Loader2,
   Lock,
+  ShoppingBag,
+  Sparkles,
+  Plus,
+  Minus,
+  Info,
 } from "lucide-react";
 import { Product, CartItem, AuthUser } from "@/types/retech";
 import {
@@ -35,6 +40,8 @@ interface ModalsProps {
   onUpdateCartQty: (productId: string, delta: number) => void;
   onRemoveFromCart: (productId: string) => void;
   onOpenCheckout: () => void;
+  onClearCart?: () => void;
+  onMoveToWishlist?: (product: Product) => void;
 
   wishlistOpen: boolean;
   onCloseWishlist: () => void;
@@ -45,6 +52,7 @@ interface ModalsProps {
 
   authOpen: boolean;
   onCloseAuth: () => void;
+  onOpenAuth?: () => void;
   onAuthSuccess?: (user: AuthUser) => void;
   currentUser?: AuthUser | null;
   authNotice?: string | null;
@@ -60,6 +68,8 @@ export default function Modals({
   onUpdateCartQty,
   onRemoveFromCart,
   onOpenCheckout,
+  onClearCart,
+  onMoveToWishlist,
   wishlistOpen,
   onCloseWishlist,
   wishlist,
@@ -68,6 +78,7 @@ export default function Modals({
   onViewDetails,
   authOpen,
   onCloseAuth,
+  onOpenAuth,
   onAuthSuccess,
   currentUser,
   authNotice,
@@ -94,168 +105,410 @@ export default function Modals({
   const [bookedRequestNumber, setBookedRequestNumber] = useState("");
 
   const cartSubtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+  const cartOriginalSubtotal = cart.reduce(
+    (acc, item) => acc + (item.product.originalPrice || item.product.price) * item.quantity,
+    0
+  );
+  const totalSavings = Math.max(0, cartOriginalSubtotal - cartSubtotal);
+  const totalCartQuantity = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <>
-      {/* 1. Cart Drawer */}
+      {/* 1. Ultra-Professional E-Commerce Cart Drawer */}
       {cartOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={onCloseCart} />
+        <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-200">
+          <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={onCloseCart} />
           <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-300">
-            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h3 className="font-extrabold text-lg text-slate-900">Your Cart ({cart.length})</h3>
-              <button onClick={onCloseCart} className="p-2 rounded-full hover:bg-slate-200 text-slate-500">
-                <X className="h-5 w-5" />
-              </button>
+            {/* Cart Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/90">
+              <div className="flex items-center gap-2.5">
+                <div className="h-9 w-9 rounded-xl bg-orange-600 flex items-center justify-center text-white shadow-md shadow-orange-600/20">
+                  <ShoppingBag className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-base sm:text-lg text-slate-950 leading-tight">
+                    Shopping Cart
+                  </h3>
+                  <p className="text-xs text-slate-500 font-semibold">
+                    {totalCartQuantity} {totalCartQuantity === 1 ? "item" : "items"} in your cart
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                {cart.length > 0 && onClearCart && (
+                  <button
+                    type="button"
+                    onClick={onClearCart}
+                    className="text-[11px] font-bold text-slate-400 hover:text-rose-600 px-2 py-1 rounded-lg hover:bg-rose-50 transition"
+                    title="Remove all items"
+                  >
+                    Clear All
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={onCloseCart}
+                  className="p-2 rounded-xl hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5 space-y-4">
-              {cart.length === 0 ? (
-                <div className="text-center py-16 space-y-3">
-                  <p className="text-slate-400 font-medium">Your cart is completely empty</p>
-                  <button
-                    onClick={onCloseCart}
-                    className="px-5 py-2.5 border border-slate-300 rounded-full font-bold text-xs hover:bg-slate-50"
-                  >
-                    Start Shopping
-                  </button>
+            {/* Persistent Login / Guest Status Strip */}
+            <div className="px-4 py-2.5 bg-slate-100/90 border-b border-slate-200/80">
+              {currentUser ? (
+                <div className="flex items-center justify-between gap-2 text-xs">
+                  <span className="flex items-center gap-1.5 text-emerald-800 font-bold">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                    <span>Permanent Cart • Saved to your account</span>
+                  </span>
+                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full truncate max-w-[130px]">
+                    {currentUser.email?.split("@")[0]}
+                  </span>
                 </div>
               ) : (
-                cart.map(({ product, quantity }) => (
-                  <div key={product.id} className="flex gap-4 p-3 border border-slate-200 rounded-2xl items-center bg-white shadow-sm">
-                    <div
-                      onClick={() => {
-                        onCloseCart();
-                        onViewDetails?.(product);
-                      }}
-                      className="relative h-16 w-16 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 cursor-pointer"
-                    >
-                      <img src={product.image} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        onClick={() => {
-                          onCloseCart();
-                          onViewDetails?.(product);
-                        }}
-                        className="font-bold text-xs text-slate-900 truncate hover:text-orange-600 cursor-pointer transition-colors"
-                      >
-                        {product.name}
-                      </p>
-                      <p className="text-xs text-orange-600 font-black mt-1">₹{product.price.toLocaleString("en-IN")}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <button
-                          onClick={() => onUpdateCartQty(product.id, -1)}
-                          className="h-6 w-6 rounded bg-slate-100 text-xs font-bold hover:bg-slate-200"
-                        >
-                          -
-                        </button>
-                        <span className="text-xs font-semibold">{quantity}</span>
-                        <button
-                          onClick={() => onUpdateCartQty(product.id, 1)}
-                          className="h-6 w-6 rounded bg-slate-100 text-xs font-bold hover:bg-slate-200"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => onRemoveFromCart(product.id)}
-                      className="p-2 text-slate-400 hover:text-rose-500"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))
+                <div className="flex items-center justify-between gap-2 text-xs">
+                  <span className="flex items-center gap-1.5 text-amber-800 font-medium leading-tight">
+                    <Info className="h-4 w-4 text-amber-600 flex-shrink-0" />
+                    <span>
+                      <strong>Guest Cart:</strong> Resets on page refresh.
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onCloseCart();
+                      onOpenAuth?.();
+                    }}
+                    className="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-black px-2.5 py-1 rounded-lg shadow-sm transition active:scale-95 whitespace-nowrap"
+                  >
+                    Sign In
+                  </button>
+                </div>
               )}
             </div>
 
+            {/* Free Delivery Unlock Progress Banner */}
             {cart.length > 0 && (
-              <div className="p-5 border-t border-slate-100 space-y-3 bg-slate-50">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 font-medium">Subtotal</span>
-                  <span className="font-black text-slate-900">₹{cartSubtotal.toLocaleString("en-IN")}</span>
+              <div className="px-4 py-2 bg-emerald-50 border-b border-emerald-100 flex items-center justify-between text-xs text-emerald-900 font-bold">
+                <span className="flex items-center gap-1.5">
+                  <Truck className="h-4 w-4 text-emerald-600" />
+                  <span>Doorstep Bluedart Air Delivery:</span>
+                </span>
+                <span className="bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                  FREE (₹0)
+                </span>
+              </div>
+            )}
+
+            {/* Cart Items Scrollable Container */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5">
+              {cart.length === 0 ? (
+                /* High-Fidelity Empty Cart State */
+                <div className="text-center py-12 px-4 space-y-5">
+                  <div className="h-24 w-24 rounded-3xl bg-orange-100/70 border border-orange-200 text-orange-600 flex items-center justify-center mx-auto shadow-inner">
+                    <ShoppingBag className="h-12 w-12 stroke-[1.5]" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <h4 className="font-black text-xl text-slate-900">
+                      Your Shopping Cart is Empty
+                    </h4>
+                    <p className="text-xs sm:text-sm text-slate-500 max-w-xs mx-auto leading-relaxed">
+                      Explore certified refurbished smartphones, MacBooks, audio gear and gaming consoles with 1-year replacement warranty.
+                    </p>
+                  </div>
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onCloseCart();
+                        const trendingEl = document.getElementById("trending");
+                        trendingEl?.scrollIntoView({ behavior: "smooth" });
+                      }}
+                      className="px-6 py-3.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-2xl font-bold text-xs shadow-lg shadow-orange-600/25 transition active:scale-95 inline-flex items-center gap-2"
+                    >
+                      <Sparkles className="h-4 w-4" /> Browse Trending Deals
+                    </button>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 font-medium">Delivery</span>
-                  <span className="text-emerald-600 font-bold">FREE</span>
+              ) : (
+                /* Item Cards List */
+                cart.map(({ product, quantity }) => {
+                  const savings = Math.max(0, product.originalPrice - product.price);
+                  return (
+                    <div
+                      key={product.id}
+                      className="p-3.5 bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:border-orange-300 transition-all space-y-3"
+                    >
+                      <div className="flex gap-3 items-start">
+                        {/* Thumbnail */}
+                        <div
+                          onClick={() => {
+                            onCloseCart();
+                            onViewDetails?.(product);
+                          }}
+                          className="relative h-20 w-20 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 cursor-pointer border border-slate-200/80 group"
+                        >
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <span className="absolute bottom-1 left-1 bg-slate-900/90 text-white text-[9px] font-black px-1.5 py-0.5 rounded">
+                            {product.brand}
+                          </span>
+                        </div>
+
+                        {/* Title, Condition & Price */}
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-[10px] font-extrabold uppercase tracking-wide text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
+                              {product.condition || "Refurbished - Like New"}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => onRemoveFromCart(product.id)}
+                              className="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition"
+                              title="Remove item"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+
+                          <h4
+                            onClick={() => {
+                              onCloseCart();
+                              onViewDetails?.(product);
+                            }}
+                            className="font-bold text-xs sm:text-sm text-slate-900 line-clamp-1 hover:text-orange-600 cursor-pointer transition-colors"
+                          >
+                            {product.name}
+                          </h4>
+
+                          <p className="text-[11px] text-slate-500 flex items-center gap-1">
+                            <ShieldCheck className="h-3 w-3 text-emerald-600" />
+                            <span>{product.warranty || "1 Year ReTech Warranty"}</span>
+                          </p>
+
+                          <div className="flex items-baseline gap-2 pt-0.5">
+                            <span className="text-sm sm:text-base font-black text-slate-950">
+                              ₹{(product.price * quantity).toLocaleString("en-IN")}
+                            </span>
+                            <span className="text-xs text-slate-400 line-through">
+                              ₹{(product.originalPrice * quantity).toLocaleString("en-IN")}
+                            </span>
+                            {savings > 0 && (
+                              <span className="text-[10px] font-extrabold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                Save ₹{(savings * quantity).toLocaleString("en-IN")}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Controls Row: Quantity Stepper & Save to Wishlist */}
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                        <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl border border-slate-200">
+                          <button
+                            type="button"
+                            onClick={() => onUpdateCartQty(product.id, -1)}
+                            className="h-6 w-6 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-700 hover:bg-slate-200 active:scale-90 transition font-bold"
+                            title="Decrease quantity"
+                          >
+                            <Minus className="h-3 w-3" />
+                          </button>
+                          <span className="px-2 font-black text-xs text-slate-900">
+                            {quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => onUpdateCartQty(product.id, 1)}
+                            className="h-6 w-6 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-700 hover:bg-slate-200 active:scale-90 transition font-bold"
+                            title="Increase quantity"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
+
+                        {onMoveToWishlist && (
+                          <button
+                            type="button"
+                            onClick={() => onMoveToWishlist(product)}
+                            className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 hover:text-rose-600 px-2 py-1 rounded-lg hover:bg-rose-50 transition"
+                          >
+                            <Heart className="h-3.5 w-3.5" /> Save for Later
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Sticky Order Summary & Checkout Bottom Bar */}
+            {cart.length > 0 && (
+              <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50 space-y-3.5 shadow-inner">
+                {/* Price Breakdown */}
+                <div className="space-y-1.5 text-xs text-slate-600">
+                  <div className="flex justify-between">
+                    <span>Subtotal ({totalCartQuantity} items):</span>
+                    <span className="font-bold text-slate-900">
+                      ₹{cartOriginalSubtotal.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                  {totalSavings > 0 && (
+                    <div className="flex justify-between text-emerald-600 font-bold">
+                      <span>Refurbished Savings:</span>
+                      <span>-₹{totalSavings.toLocaleString("en-IN")}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-emerald-600 font-bold">
+                    <span>Express Air Delivery:</span>
+                    <span>FREE</span>
+                  </div>
+                  <div className="flex justify-between text-slate-900 font-black text-base pt-2 border-t border-slate-200">
+                    <span>Total Amount:</span>
+                    <span className="text-orange-600">
+                      ₹{cartSubtotal.toLocaleString("en-IN")}
+                    </span>
+                  </div>
                 </div>
+
+                {/* Primary Proceed CTA Button */}
                 <button
                   type="button"
                   onClick={() => {
                     onCloseCart();
                     onOpenCheckout();
                   }}
-                  className="w-full inline-flex items-center justify-center bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-orange-600/30 transition hover:scale-[1.01]"
+                  className="w-full inline-flex items-center justify-between bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white p-4 rounded-2xl font-black text-sm shadow-xl shadow-orange-600/30 transition hover:scale-[1.01] active:scale-95"
                 >
-                  {currentUser ? (
-                    <>
-                      Proceed to Checkout <ArrowRight className="h-4 w-4 ml-2" />
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="h-4 w-4 mr-2" /> Sign In &amp; Proceed to Checkout
-                    </>
-                  )}
+                  <span className="flex items-center gap-2">
+                    {!currentUser && <Lock className="h-4 w-4" />}
+                    <span>{currentUser ? "Proceed to Checkout" : "Sign In & Checkout"}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 bg-black/20 px-3 py-1 rounded-xl text-xs font-black">
+                    ₹{cartSubtotal.toLocaleString("en-IN")}
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </span>
                 </button>
-                {!currentUser && (
-                  <p className="text-[11px] text-slate-500 text-center font-medium">
-                    🔒 Account login required to secure 1-year warranty &amp; delivery
-                  </p>
-                )}
+
+                {/* Trust Guarantee Strip */}
+                <div className="grid grid-cols-3 gap-1 pt-1 text-center text-[10px] text-slate-500 font-semibold border-t border-slate-200/60">
+                  <div className="flex items-center justify-center gap-1">
+                    <ShieldCheck className="h-3 w-3 text-emerald-600" /> 1-Yr Warranty
+                  </div>
+                  <div className="flex items-center justify-center gap-1">
+                    <RotateCcw className="h-3 w-3 text-emerald-600" /> 7-Day Return
+                  </div>
+                  <div className="flex items-center justify-center gap-1">
+                    <Lock className="h-3 w-3 text-emerald-600" /> 256-Bit SSL
+                  </div>
+                </div>
               </div>
             )}
           </div>
         </div>
       )}
 
-      {/* 2. Wishlist Modal */}
+      {/* 2. Professional Wishlist Modal */}
       {wishlistOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={onCloseWishlist} />
-          <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 shadow-2xl z-10 max-h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between border-b pb-4">
-              <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
-                <Heart className="h-5 w-5 text-rose-500 fill-rose-500" /> Saved Wishlist ({wishlist.length})
-              </h3>
-              <button onClick={onCloseWishlist} className="p-2 text-slate-400 hover:text-slate-600">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
+          <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={onCloseWishlist} />
+          <div className="relative w-full max-w-xl bg-white rounded-3xl p-5 sm:p-6 shadow-2xl z-10 max-h-[85vh] flex flex-col border border-slate-100">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="h-9 w-9 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
+                  <Heart className="h-5 w-5 fill-rose-600" />
+                </div>
+                <div>
+                  <h3 className="font-black text-lg text-slate-900 leading-tight">
+                    Saved Wishlist
+                  </h3>
+                  <p className="text-xs text-slate-500 font-semibold">
+                    {wishlist.length} {wishlist.length === 1 ? "device saved" : "devices saved"}
+                    {currentUser ? " • Saved to your account" : " • Guest session"}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={onCloseWishlist}
+                className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
+
+            {/* List */}
             <div className="flex-1 overflow-y-auto py-4 space-y-3">
               {wishlist.length === 0 ? (
-                <p className="text-center text-slate-400 py-8 font-medium">No saved items in your wishlist.</p>
+                <div className="text-center py-12 space-y-3">
+                  <div className="h-16 w-16 rounded-2xl bg-rose-50 text-rose-400 flex items-center justify-center mx-auto">
+                    <Heart className="h-8 w-8" />
+                  </div>
+                  <h4 className="font-bold text-slate-800 text-sm">Your wishlist is empty</h4>
+                  <p className="text-xs text-slate-400 max-w-xs mx-auto">
+                    Tap the heart icon on any product to save it here for quick access later.
+                  </p>
+                </div>
               ) : (
                 wishlist.map((p) => (
-                  <div key={p.id} className="flex items-center justify-between p-3 border rounded-2xl">
+                  <div
+                    key={p.id}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 border border-slate-200 rounded-2xl hover:border-orange-300 transition bg-white shadow-sm gap-3"
+                  >
                     <div
                       onClick={() => {
                         onCloseWishlist();
                         onViewDetails?.(p);
                       }}
-                      className="flex items-center gap-3 cursor-pointer group"
+                      className="flex items-center gap-3 cursor-pointer group flex-1 min-w-0"
                     >
-                      <div className="relative h-12 w-12 rounded-lg bg-slate-100 overflow-hidden">
-                        <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      <div className="relative h-14 w-14 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200/80">
+                        <img
+                          src={p.image}
+                          alt={p.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
                       </div>
-                      <div>
-                        <p className="text-xs font-bold text-slate-900 line-clamp-1 group-hover:text-orange-600 transition-colors">{p.name}</p>
-                        <p className="text-xs text-orange-600 font-bold">₹{p.price.toLocaleString("en-IN")}</p>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[10px] font-black text-orange-600 uppercase">
+                          {p.brand}
+                        </span>
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate group-hover:text-orange-600 transition-colors">
+                          {p.name}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-xs font-black text-slate-900">
+                            ₹{p.price.toLocaleString("en-IN")}
+                          </span>
+                          <span className="text-[10px] text-slate-400 line-through">
+                            ₹{p.originalPrice.toLocaleString("en-IN")}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+
+                    <div className="flex items-center gap-2 justify-end">
                       <button
+                        type="button"
                         onClick={() => {
                           onAddToCart(p);
                           onRemoveWishlist(p.id);
                         }}
-                        className="bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition"
+                        className="bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-md shadow-orange-600/20 active:scale-95 inline-flex items-center gap-1.5"
                       >
-                        Move to Cart
+                        <ShoppingBag className="h-3.5 w-3.5" /> Move to Cart
                       </button>
                       <button
+                        type="button"
                         onClick={() => onRemoveWishlist(p.id)}
-                        className="p-2 text-slate-400 hover:text-rose-500"
+                        className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 transition"
+                        title="Remove from wishlist"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
